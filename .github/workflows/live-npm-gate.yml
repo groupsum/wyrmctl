@@ -7,7 +7,7 @@ on:
     - cron: "23 4 * * *"
 
 concurrency:
-  group: npmctl-live-npm-gate-${{ github.ref }}
+  group: wyrmctl-live-npm-gate-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -20,4 +20,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-uv-python
-      - uses: ./.github/actions/npmctl-real-npm-e2e
+      - uses: ./.github/actions/wyrmctl-real-npm-e2e

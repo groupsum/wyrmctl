@@ -1,5 +1,5 @@
 ---
-name: npmctl real NPM E2E example
+name: wyrmctl real NPM E2E example
 on: workflow_dispatch
 jobs:
   e2e:
@@ -7,4 +7,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-uv-python
-      - uses: ./.github/actions/npmctl-real-npm-e2e
+      - uses: ./.github/actions/wyrmctl-real-npm-e2e

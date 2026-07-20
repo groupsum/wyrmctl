@@ -1,5 +1,5 @@
 ---
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 kind: DesiredState
 schemaVersion: 3
 metadata:
@@ -14,7 +14,7 @@ spec:
       certificate_ref: cert.wildcard-example
       ssl_forced: 1
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: proxy.wildcard-app
   certificates:
@@ -27,7 +27,7 @@ spec:
         provider: letsencrypt
         dns_challenge: true
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: cert.wildcard-example
   accessLists: []

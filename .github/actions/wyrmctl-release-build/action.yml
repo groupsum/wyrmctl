@@ -1,0 +1,26 @@
+---
+name: wyrmctl release build
+description: Build wyrmctl package wheels and source distributions.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        uv build --package wyrmctl
+        uv build --package wyrmctl-cloudflare
+        uv build --package wyrmctl-digitalocean
+        uv build --package wyrmctl-godaddy
+        uv build --package wyrmctl-namecheap
+        uv build --package wyrmctl-route53
+    - shell: bash
+      run: |
+        uv run python -m wyrmctl compliance artifacts --output-dir .tmp/compliance --source-dir . --dist-dir dist
+        uv run python -m wyrmctl compliance gate --artifact-dir .tmp/compliance
+    - uses: actions/upload-artifact@v4
+      with:
+        name: wyrmctl-dist
+        path: dist/*
+    - uses: actions/upload-artifact@v4
+      with:
+        name: wyrmctl-compliance
+        path: .tmp/compliance/*

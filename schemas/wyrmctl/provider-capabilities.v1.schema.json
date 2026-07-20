@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://wyrmctl.com/schemas/provider-capabilities.v1.schema.json",
+  "title": "wyrmctl ProviderCapabilities v1", "type": "object",
+  "required": ["provider", "capabilityVersion", "mutationModel", "recordTypes"],
+  "properties": {"provider": {"type": "string"}, "capabilityVersion": {"const": 1}, "mutationModel": {"type": "string"}, "recordTypes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}}
+}

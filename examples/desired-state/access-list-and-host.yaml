@@ -1,5 +1,5 @@
 ---
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 kind: DesiredState
 schemaVersion: 3
 metadata:
@@ -13,7 +13,7 @@ spec:
       forward_port: 8080
       access_list_ref: acl.private-admins
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: proxy.admin
   certificates: []
@@ -24,7 +24,7 @@ spec:
         items: []
         clients: []
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: acl.private-admins
   redirectionHosts: []

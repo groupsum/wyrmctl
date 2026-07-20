@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://wyrmctl.com/schemas/migration-manifest.v1.schema.json",
+  "title": "wyrmctl Migration v1", "type": "object",
+  "required": ["apiVersion", "kind", "schemaVersion", "metadata", "spec"],
+  "properties": {"apiVersion": {"const": "wyrmctl.com/v1"}, "kind": {"const": "NpmctlMigration"}, "schemaVersion": {"const": 1}, "metadata": {"type": "object", "required": ["id", "owner", "environment"]}, "spec": {"type": "object", "required": ["migrationType", "source", "target", "targetDigest", "operations", "policies", "approvals", "recovery"]}},
+  "additionalProperties": false
+}

@@ -1,4 +1,4 @@
-<h1 align="center">npmctl</h1>
+<h1 align="center">wyrmctl</h1>
 
 <p align="center"><strong>Owner-scoped GitOps for Nginx Proxy Manager</strong></p>
 
@@ -7,36 +7,36 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/npmctl/"><img src="https://img.shields.io/pypi/v/npmctl.svg" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/npmctl/"><img src="https://img.shields.io/pypi/pyversions/npmctl.svg" alt="Python versions"></a>
-  <a href="https://github.com/groupsum/npmctl/actions/workflows/ci.yml"><img src="https://github.com/groupsum/npmctl/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI"></a>
-  <a href="https://github.com/groupsum/npmctl/actions/workflows/python-matrix.yml"><img src="https://github.com/groupsum/npmctl/actions/workflows/python-matrix.yml/badge.svg?branch=master" alt="Python Matrix"></a>
-  <a href="https://github.com/groupsum/npmctl/actions/workflows/live-npm-gate.yml"><img src="https://github.com/groupsum/npmctl/actions/workflows/live-npm-gate.yml/badge.svg?branch=master" alt="Live NPM Gate"></a>
-  <a href="https://github.com/groupsum/npmctl/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="Apache 2.0 License"></a>
+  <a href="https://pypi.org/project/wyrmctl/"><img src="https://img.shields.io/pypi/v/wyrmctl.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/wyrmctl/"><img src="https://img.shields.io/pypi/pyversions/wyrmctl.svg" alt="Python versions"></a>
+  <a href="https://github.com/groupsum/wyrmctl/actions/workflows/ci.yml"><img src="https://github.com/groupsum/wyrmctl/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI"></a>
+  <a href="https://github.com/groupsum/wyrmctl/actions/workflows/python-matrix.yml"><img src="https://github.com/groupsum/wyrmctl/actions/workflows/python-matrix.yml/badge.svg?branch=master" alt="Python Matrix"></a>
+  <a href="https://github.com/groupsum/wyrmctl/actions/workflows/live-npm-gate.yml"><img src="https://github.com/groupsum/wyrmctl/actions/workflows/live-npm-gate.yml/badge.svg?branch=master" alt="Live NPM Gate"></a>
+  <a href="https://github.com/groupsum/wyrmctl/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="Apache 2.0 License"></a>
 </p>
 
 <p align="center">
-  <a href="https://hits.sh/github.com/groupsum/npmctl/blob/master/README.md/"><img src="https://hits.sh/github.com/groupsum/npmctl/blob/master/README.md.svg?label=npmctl%20repository%20hits" alt="npmctl repository hits"></a>
-  <a href="https://pepy.tech/projects/npmctl"><img src="https://static.pepy.tech/badge/npmctl" alt="npmctl downloads"></a>
-  <a href="https://pepy.tech/projects/npmctl-namecheap"><img src="https://static.pepy.tech/badge/npmctl-namecheap" alt="npmctl-namecheap downloads"></a>
+  <a href="https://hits.sh/github.com/groupsum/wyrmctl/blob/master/README.md/"><img src="https://hits.sh/github.com/groupsum/wyrmctl/blob/master/README.md.svg?label=wyrmctl%20repository%20hits" alt="wyrmctl repository hits"></a>
+  <a href="https://pepy.tech/projects/wyrmctl"><img src="https://static.pepy.tech/badge/wyrmctl" alt="wyrmctl downloads"></a>
+  <a href="https://pepy.tech/projects/wyrmctl-namecheap"><img src="https://static.pepy.tech/badge/wyrmctl-namecheap" alt="wyrmctl-namecheap downloads"></a>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/groupsum/npmctl/master/docs/images/marketing/npmctl-architecture-infographic.png" alt="npmctl architecture infographic">
+  <img src="https://raw.githubusercontent.com/groupsum/wyrmctl/master/docs/images/marketing/wyrmctl-architecture-infographic.png" alt="wyrmctl architecture infographic">
 </p>
 
-`npmctl` is an owner-scoped GitOps controller for Nginx Proxy Manager. It validates desired-state YAML, plans safe changes against a live NPM API, applies clean plans, and adopts unmanaged resources only when explicitly requested.
+`wyrmctl` is an owner-scoped GitOps controller for Nginx Proxy Manager. It validates desired-state YAML, plans safe changes against a live NPM API, applies clean plans, and adopts unmanaged resources only when explicitly requested.
 
 ## Versioned execution
 
-npmctl 0.4 adds independently versioned contracts, DesiredState v3, canonical semantic digests, repository manifests, lockfiles, immutable plan artifacts, transactional migration manifests, provider capability negotiation, and stable machine-readable command results.
+wyrmctl 0.4 adds independently versioned contracts, DesiredState v3, canonical semantic digests, repository manifests, lockfiles, immutable plan artifacts, transactional migration manifests, provider capability negotiation, and stable machine-readable command results.
 
 ```bash
-npmctl contract list
-npmctl repo validate .npmctl/repository.yaml
-npmctl plan .npmctl/production --artifact-out .npmctl/artifacts/plan.yaml \
+wyrmctl contract list
+wyrmctl repo validate .wyrmctl/repository.yaml
+wyrmctl plan .wyrmctl/production --artifact-out .wyrmctl/artifacts/plan.yaml \
   --repository groupsum/example --environment production --commit "$GITHUB_SHA"
-npmctl apply --artifact .npmctl/artifacts/plan.yaml \
+wyrmctl apply --artifact .wyrmctl/artifacts/plan.yaml \
   --repository groupsum/example --environment production --commit "$GITHUB_SHA"
 ```
 
@@ -44,25 +44,25 @@ Ordinary plan artifacts may create, update, or verify resources. Adoption, trans
 
 ## FAQ
 
-### What is npmctl?
+### What is wyrmctl?
 
-**Answer:** `npmctl` is a declarative controller for Nginx Proxy Manager that turns YAML desired state into safe owner-scoped plans, applies clean reconciles, and blocks unsafe mutations before they hit production.
+**Answer:** `wyrmctl` is a declarative controller for Nginx Proxy Manager that turns YAML desired state into safe owner-scoped plans, applies clean reconciles, and blocks unsafe mutations before they hit production.
 
-### What problem does npmctl solve?
+### What problem does wyrmctl solve?
 
-**Answer:** `npmctl` replaces manual NPM clicking and brittle API scripts with repeatable plan/apply/adopt workflows for proxy hosts, certificates, access lists, and related resources.
+**Answer:** `wyrmctl` replaces manual NPM clicking and brittle API scripts with repeatable plan/apply/adopt workflows for proxy hosts, certificates, access lists, and related resources.
 
-### Does npmctl modify resources it does not own?
+### Does wyrmctl modify resources it does not own?
 
-**Answer:** No. `npmctl` treats NPM resources as owner-scoped, refuses to mutate foreign-owned resources, and requires explicit adoption before unmanaged resources come under npmctl control.
+**Answer:** No. `wyrmctl` treats NPM resources as owner-scoped, refuses to mutate foreign-owned resources, and requires explicit adoption before unmanaged resources come under wyrmctl control.
 
-### How does npmctl handle certificate issuance and rotation?
+### How does wyrmctl handle certificate issuance and rotation?
 
-**Answer:** `npmctl` treats certificates as declarative resources in desired state. Issuance happens when a desired certificate must be created, and rotation is controlled through reconcile policy rather than implicit side effects during unrelated repair work.
+**Answer:** `wyrmctl` treats certificates as declarative resources in desired state. Issuance happens when a desired certificate must be created, and rotation is controlled through reconcile policy rather than implicit side effects during unrelated repair work.
 
-### Can npmctl adopt existing manual resources safely?
+### Can wyrmctl adopt existing manual resources safely?
 
-**Answer:** Yes. `npmctl adopt` is the explicit path for attaching npmctl ownership metadata to compatible unmanaged resources so later plans and applies remain conservative and traceable.
+**Answer:** Yes. `wyrmctl adopt` is the explicit path for attaching wyrmctl ownership metadata to compatible unmanaged resources so later plans and applies remain conservative and traceable.
 
 It manages:
 
@@ -82,10 +82,10 @@ certificate and DNS providers.
 
 ## Safety Model
 
-- Every managed resource must carry `meta.managed_by: npmctl`, `meta.owner`, and `meta.resource_id`.
+- Every managed resource must carry `meta.managed_by: wyrmctl`, `meta.owner`, and `meta.resource_id`.
 - `--owner` limits planning and mutation to one owner scope.
 - Foreign-owned resources are immutable to the current owner.
-- Unmanaged resources are not changed by `plan` or `apply`; use `adopt` to attach npmctl metadata.
+- Unmanaged resources are not changed by `plan` or `apply`; use `adopt` to attach wyrmctl metadata.
 - Deletes are opt-in with `--prune-owned`.
 - API operations are gated by the NPM OpenAPI schema and fail closed when a required endpoint is unavailable.
 
@@ -101,31 +101,31 @@ certificate and DNS providers.
 Install the published CLI with `pipx`:
 
 ```bash
-pipx install npmctl
-npmctl --version
-npmctl --help
+pipx install wyrmctl
+wyrmctl --version
+wyrmctl --help
 ```
 
 Install with `uv` as a tool:
 
 ```bash
-uv tool install npmctl
-npmctl --help
+uv tool install wyrmctl
+wyrmctl --help
 ```
 
 Install from a local checkout:
 
 ```bash
-git clone https://github.com/groupsum/npmctl.git
-cd npmctl
+git clone https://github.com/groupsum/wyrmctl.git
+cd wyrmctl
 uv sync
-uv run npmctl --help
+uv run wyrmctl --help
 ```
 
 Run directly from the workspace while developing:
 
 ```bash
-uv run npmctl validate examples/desired-state
+uv run wyrmctl validate examples/desired-state
 uv run pytest
 ```
 
@@ -134,7 +134,7 @@ uv run pytest
 You can pass API credentials on every command:
 
 ```bash
-npmctl --base-url http://127.0.0.1:81/api --identity admin@example.com --secret changeme health
+wyrmctl --base-url http://127.0.0.1:81/api --identity admin@example.com --secret changeme health
 ```
 
 For regular use, set environment variables:
@@ -158,7 +158,7 @@ $env:NPM_TIMEOUT_S = "15"
 Then verify connectivity:
 
 ```bash
-npmctl health
+wyrmctl health
 ```
 
 ## Local NPM Stack
@@ -170,7 +170,7 @@ docker compose -f deploy/npm/docker-compose.yml up -d
 export NPM_BASE_URL=http://127.0.0.1:81/api
 export NPM_IDENTITY=admin@example.com
 export NPM_SECRET=changeme
-npmctl health
+wyrmctl health
 ```
 
 For details, see [deploy/npm/README.md](deploy/npm/README.md).
@@ -180,7 +180,7 @@ For details, see [deploy/npm/README.md](deploy/npm/README.md).
 A minimal proxy host:
 
 ```yaml
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 schemaVersion: 2
 proxy_hosts:
   - domain_names: [app.example.com]
@@ -188,7 +188,7 @@ proxy_hosts:
     forward_host: app
     forward_port: 3000
     meta:
-      managed_by: npmctl
+      managed_by: wyrmctl
       owner: workload-a
       resource_id: proxy.app
 ```
@@ -196,7 +196,7 @@ proxy_hosts:
 A proxy host with certificate and access-list references:
 
 ```yaml
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 schemaVersion: 2
 certificates:
   - name: wildcard-example
@@ -205,7 +205,7 @@ certificates:
     api_payload:
       provider: letsencrypt
     meta:
-      managed_by: npmctl
+      managed_by: wyrmctl
       owner: workload-a
       resource_id: cert.wildcard-example
 access_lists:
@@ -215,7 +215,7 @@ access_lists:
       items: []
       clients: []
     meta:
-      managed_by: npmctl
+      managed_by: wyrmctl
       owner: workload-a
       resource_id: acl.private-admins
 proxy_hosts:
@@ -231,7 +231,7 @@ proxy_hosts:
     caching_enabled: 1
     block_exploits: 1
     meta:
-      managed_by: npmctl
+      managed_by: wyrmctl
       owner: workload-a
       resource_id: proxy.app
 ```
@@ -243,76 +243,76 @@ More examples are in [examples/desired-state](examples/desired-state).
 Validate desired state without calling NPM:
 
 ```bash
-npmctl validate examples/desired-state
-npmctl --output json validate examples/desired-state
+wyrmctl validate examples/desired-state
+wyrmctl --output json validate examples/desired-state
 ```
 
 Check whether files need schema migration:
 
 ```bash
-npmctl migrate examples/desired-state --check
-npmctl migrate examples/desired-state --write
+wyrmctl migrate examples/desired-state --check
+wyrmctl migrate examples/desired-state --write
 ```
 
 Fetch the live NPM OpenAPI schema:
 
 ```bash
-npmctl schema fetch --write schemas/npm/live-openapi.json
+wyrmctl schema fetch --write schemas/npm/live-openapi.json
 ```
 
 Inspect endpoint capabilities from a schema file or from the live API:
 
 ```bash
-npmctl schema capabilities --schema schemas/npm/2.10.4/openapi.json
-npmctl schema capabilities
-npmctl schema check
+wyrmctl schema capabilities --schema schemas/npm/2.10.4/openapi.json
+wyrmctl schema capabilities
+wyrmctl schema check
 ```
 
 Plan owner-scoped changes:
 
 ```bash
-npmctl plan examples/desired-state --owner workload-a
-npmctl --output json plan examples/desired-state --owner workload-a
+wyrmctl plan examples/desired-state --owner workload-a
+wyrmctl --output json plan examples/desired-state --owner workload-a
 ```
 
 Apply a clean plan:
 
 ```bash
-npmctl apply examples/desired-state --owner workload-a
+wyrmctl apply examples/desired-state --owner workload-a
 ```
 
 Preview the apply path without mutation:
 
 ```bash
-npmctl apply examples/desired-state --owner workload-a --dry-run
+wyrmctl apply examples/desired-state --owner workload-a --dry-run
 ```
 
 Delete owned resources that are no longer present in desired state:
 
 ```bash
-npmctl apply examples/desired-state --owner workload-a --prune-owned
+wyrmctl apply examples/desired-state --owner workload-a --prune-owned
 ```
 
-Adopt unmanaged matching resources by writing npmctl metadata:
+Adopt unmanaged matching resources by writing wyrmctl metadata:
 
 ```bash
-npmctl adopt examples/desired-state --owner workload-a
+wyrmctl adopt examples/desired-state --owner workload-a
 ```
 
 Strict adoption requires the unmanaged resource fields to match desired state. To allow field drift while attaching metadata:
 
 ```bash
-npmctl adopt examples/desired-state --owner workload-a --allow-field-drift
+wyrmctl adopt examples/desired-state --owner workload-a --allow-field-drift
 ```
 
 ## Operational Flow
 
 1. Author YAML with explicit `meta.owner` and `meta.resource_id`.
-2. Run `npmctl validate`.
-3. Run `npmctl schema check` against the target NPM instance.
-4. Run `npmctl plan --owner <owner>`.
+2. Run `wyrmctl validate`.
+3. Run `wyrmctl schema check` against the target NPM instance.
+4. Run `wyrmctl plan --owner <owner>`.
 5. Review creates, updates, deletes, adopts, noops, and conflicts.
-6. Run `npmctl apply --owner <owner>` only when the plan is clean.
+6. Run `wyrmctl apply --owner <owner>` only when the plan is clean.
 7. Use `--prune-owned` only when absent owned resources should be deleted.
 
 ## Exit Codes
@@ -332,7 +332,7 @@ uv sync
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
-uv build --package npmctl
+uv build --package wyrmctl
 ```
 
 Run real NPM E2E tests against the bundled CI stack:
@@ -343,7 +343,7 @@ export NPMCTL_REAL_NPM=1
 export NPM_BASE_URL=http://127.0.0.1:8181/api
 export NPM_IDENTITY=admin@example.com
 export NPM_SECRET=changeme
-uv run pytest --no-cov -m npm packages/npmctl/tests/e2e
+uv run pytest --no-cov -m npm packages/wyrmctl/tests/e2e
 docker compose -f deploy/npm/compose.ci.yml down
 ```
 

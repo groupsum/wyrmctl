@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: npmctl-ci-${{ github.ref }}
+  group: wyrmctl-ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -20,5 +20,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-uv-python
-      - uses: ./.github/actions/npmctl-check
-      - uses: ./.github/actions/npmctl-schema-gate
+      - uses: ./.github/actions/wyrmctl-check
+      - uses: ./.github/actions/wyrmctl-schema-gate

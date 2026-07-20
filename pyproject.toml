@@ -1,7 +1,7 @@
 [project]
-name = "npmctl-workspace"
+name = "wyrmctl-workspace"
 version = "0.4.0"
-description = "Workspace root for npmctl, an owner-scoped Nginx Proxy Manager controller."
+description = "Workspace root for wyrmctl, an owner-scoped Nginx Proxy Manager controller."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -43,16 +43,16 @@ classifiers = [
 package = false
 
 [tool.uv.sources]
-npmctl = { workspace = true }
+wyrmctl = { workspace = true }
 
 [tool.uv.workspace]
 members = [
-  "packages/npmctl",
-  "packages/npmctl-cloudflare",
-  "packages/npmctl-digitalocean",
-  "packages/npmctl-godaddy",
-  "packages/npmctl-namecheap",
-  "packages/npmctl-route53",
+  "packages/wyrmctl",
+  "packages/wyrmctl-cloudflare",
+  "packages/wyrmctl-digitalocean",
+  "packages/wyrmctl-godaddy",
+  "packages/wyrmctl-namecheap",
+  "packages/wyrmctl-route53",
 ]
 
 [dependency-groups]
@@ -74,18 +74,18 @@ dev = [
 line-length = 120
 target-version = "py310"
 src = [
-  "packages/npmctl/src",
-  "packages/npmctl/tests",
-  "packages/npmctl-cloudflare/src",
-  "packages/npmctl-cloudflare/tests",
-  "packages/npmctl-digitalocean/src",
-  "packages/npmctl-digitalocean/tests",
-  "packages/npmctl-godaddy/src",
-  "packages/npmctl-godaddy/tests",
-  "packages/npmctl-namecheap/src",
-  "packages/npmctl-namecheap/tests",
-  "packages/npmctl-route53/src",
-  "packages/npmctl-route53/tests",
+  "packages/wyrmctl/src",
+  "packages/wyrmctl/tests",
+  "packages/wyrmctl-cloudflare/src",
+  "packages/wyrmctl-cloudflare/tests",
+  "packages/wyrmctl-digitalocean/src",
+  "packages/wyrmctl-digitalocean/tests",
+  "packages/wyrmctl-godaddy/src",
+  "packages/wyrmctl-godaddy/tests",
+  "packages/wyrmctl-namecheap/src",
+  "packages/wyrmctl-namecheap/tests",
+  "packages/wyrmctl-route53/src",
+  "packages/wyrmctl-route53/tests",
   "scripts",
   "tools",
 ]
@@ -95,7 +95,7 @@ select = ["B", "C4", "E", "F", "I", "PT", "PTH", "RUF", "SIM", "UP", "W"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"packages/npmctl/tests/**/*.py" = ["PT011", "RUF012", "PLC0415"]
+"packages/wyrmctl/tests/**/*.py" = ["PT011", "RUF012", "PLC0415"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -103,22 +103,22 @@ indent-style = "space"
 line-ending = "lf"
 
 [tool.pytest.ini_options]
-addopts = "-ra --strict-markers --strict-config --cov=npmctl --cov-report=term-missing"
+addopts = "-ra --strict-markers --strict-config --cov=wyrmctl --cov-report=term-missing"
 testpaths = [
-  "packages/npmctl/tests",
-  "packages/npmctl-cloudflare/tests",
-  "packages/npmctl-digitalocean/tests",
-  "packages/npmctl-godaddy/tests",
-  "packages/npmctl-namecheap/tests",
-  "packages/npmctl-route53/tests",
+  "packages/wyrmctl/tests",
+  "packages/wyrmctl-cloudflare/tests",
+  "packages/wyrmctl-digitalocean/tests",
+  "packages/wyrmctl-godaddy/tests",
+  "packages/wyrmctl-namecheap/tests",
+  "packages/wyrmctl-route53/tests",
 ]
 pythonpath = [
-  "packages/npmctl/src",
-  "packages/npmctl-cloudflare/src",
-  "packages/npmctl-digitalocean/src",
-  "packages/npmctl-godaddy/src",
-  "packages/npmctl-namecheap/src",
-  "packages/npmctl-route53/src",
+  "packages/wyrmctl/src",
+  "packages/wyrmctl-cloudflare/src",
+  "packages/wyrmctl-digitalocean/src",
+  "packages/wyrmctl-godaddy/src",
+  "packages/wyrmctl-namecheap/src",
+  "packages/wyrmctl-route53/src",
 ]
 markers = [
   "integration: integration tests using a local fake NPM API server",
@@ -127,7 +127,7 @@ markers = [
 
 [tool.coverage.run]
 branch = true
-source = ["npmctl"]
+source = ["wyrmctl"]
 
 [tool.coverage.report]
 show_missing = true

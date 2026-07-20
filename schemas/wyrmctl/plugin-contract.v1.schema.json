@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://wyrmctl.com/schemas/plugin-contract.v1.schema.json",
+  "title": "wyrmctl Plugin Contract v1", "type": "object",
+  "required": ["apiVersion", "kind", "schemaVersion", "plugin", "contracts"],
+  "properties": {"apiVersion": {"const": "wyrmctl.com/v1"}, "kind": {"const": "PluginContract"}, "schemaVersion": {"const": 1}, "plugin": {"type": "string"}, "contracts": {"type": "array", "items": {"type": "object"}}}
+}

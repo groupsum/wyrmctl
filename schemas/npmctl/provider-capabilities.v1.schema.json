@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://npmctl.com/schemas/provider-capabilities.v1.schema.json",
-  "title": "npmctl ProviderCapabilities v1", "type": "object",
-  "required": ["provider", "capabilityVersion", "mutationModel", "recordTypes"],
-  "properties": {"provider": {"type": "string"}, "capabilityVersion": {"const": 1}, "mutationModel": {"type": "string"}, "recordTypes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}}
-}

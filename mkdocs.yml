@@ -1,8 +1,8 @@
 ---
-site_name: npmctl
+site_name: wyrmctl
 site_description: Safe declarative proxy host automation for Nginx Proxy Manager.
-site_url: https://example.github.io/npmctl/
-repo_url: https://github.com/example/npmctl
+site_url: https://example.github.io/wyrmctl/
+repo_url: https://github.com/example/wyrmctl
 nav:
   - Home: README.md
   - DNS providers: docs/dns-providers.md
@@ -13,6 +13,6 @@ nav:
   - Migration recovery: docs/migration-recovery.md
   - Provider capabilities: docs/provider-capabilities.md
   - Artifact trust: docs/artifact-trust.md
-  - API subset: docs/specs/npmctl-openapi-subset.md
+  - API subset: docs/specs/wyrmctl-openapi-subset.md
   - SSOT: docs/ssot/index.md
   - SEO overview: docs/seo/answer-engine-overview.md

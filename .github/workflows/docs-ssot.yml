@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: npmctl-docs-ssot-${{ github.ref }}
+  group: wyrmctl-docs-ssot-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -21,4 +21,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-uv-python
-      - uses: ./.github/actions/npmctl-ssot-gate
+      - uses: ./.github/actions/wyrmctl-ssot-gate

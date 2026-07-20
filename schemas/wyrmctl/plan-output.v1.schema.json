@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "wyrmctl plan output v1",
+  "type": "object",
+  "required": ["ok", "existing_count", "summary", "operations", "conflicts"],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "existing_count": {"type": "integer", "minimum": 0},
+    "summary": {"type": "object"},
+    "operations": {"type": "array"},
+    "conflicts": {"type": "array"}
+  }
+}

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     documents: list[tuple[Path, dict[str, object]]] = []
     registry = Registry()
-    for path in sorted((ROOT / "schemas" / "npmctl").glob("*.schema.json")):
+    for path in sorted((ROOT / "schemas" / "wyrmctl").glob("*.schema.json")):
         with path.open("r", encoding="utf-8") as handle:
             schema = json.load(handle)
         Draft202012Validator.check_schema(schema)

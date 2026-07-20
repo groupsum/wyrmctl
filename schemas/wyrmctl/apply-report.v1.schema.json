@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://wyrmctl.com/schemas/apply-report.v1.schema.json",
+  "title": "wyrmctl ApplyReport v1", "type": "object",
+  "required": ["apiVersion", "kind", "schemaVersion", "metadata", "spec"],
+  "properties": {"apiVersion": {"const": "wyrmctl.com/v1"}, "kind": {"const": "ApplyReport"}, "schemaVersion": {"const": 1}, "metadata": {"type": "object"}, "spec": {"type": "object", "required": ["planArtifactDigest", "status", "results", "verification"]}},
+  "additionalProperties": false
+}

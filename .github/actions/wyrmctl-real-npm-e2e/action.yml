@@ -1,0 +1,35 @@
+---
+name: wyrmctl real NPM E2E
+description: Start Nginx Proxy Manager in Docker and run opt-in real API pytest tests.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        docker compose -f deploy/npm/compose.ci.yml up -d
+        for i in $(seq 1 120); do
+          if curl -fsS http://127.0.0.1:8181/api/ >/dev/null; then
+            exit 0
+          fi
+          docker compose -f deploy/npm/compose.ci.yml ps
+          sleep 2
+        done
+        docker compose -f deploy/npm/compose.ci.yml logs --no-color
+        exit 1
+    - shell: bash
+      env:
+        NPMCTL_REAL_NPM: "1"
+        NPM_BASE_URL: http://127.0.0.1:8181/api
+        NPM_IDENTITY: admin@example.com
+        NPM_SECRET: changeme
+      run: uv run pytest -m npm packages/wyrmctl/tests/e2e --cov=wyrmctl --cov-report=xml:real-npm-coverage.xml --cov-report=term-missing --cov-fail-under=0
+    - if: always()
+      shell: bash
+      run: docker compose -f deploy/npm/compose.ci.yml logs --no-color > npm-e2e-container.log || true
+    - if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-e2e-artifacts
+        path: |
+          npm-e2e-container.log
+          real-npm-coverage.xml

@@ -1,0 +1,10 @@
+---
+name: wyrmctl SSOT gate
+description: Validate SSOT registry and generated docs.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: uv run ssot validate . --write-report
+    - shell: bash
+      run: uv run python tools/render_ssot_docs.py --check

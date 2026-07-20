@@ -1,5 +1,5 @@
 ---
-name: npmctl gated release example
+name: wyrmctl gated release example
 on:
   workflow_run:
     workflows: [Real NPM E2E]

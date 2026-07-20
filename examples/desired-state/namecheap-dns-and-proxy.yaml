@@ -1,22 +1,22 @@
 ---
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 kind: DesiredState
 schemaVersion: 3
 metadata:
-  name: npmctl-lander-desired-state
-  owner: npmctl-lander
+  name: wyrmctl-lander-desired-state
+  owner: wyrmctl-lander
 spec:
   proxyHosts:
     - domain_names:
-        - npmctl.com
-        - www.npmctl.com
-      forward_host: npmctl_lander
+        - wyrmctl.com
+        - www.wyrmctl.com
+      forward_host: wyrmctl_lander
       forward_port: 80
       forward_scheme: http
       meta:
-        managed_by: npmctl
-        owner: npmctl-lander
-        resource_id: proxy.npmctl-com
+        managed_by: wyrmctl
+        owner: wyrmctl-lander
+        resource_id: proxy.wyrmctl-com
   certificates: []
   accessLists: []
   redirectionHosts: []
@@ -26,24 +26,24 @@ spec:
   settings: []
   dnsRecords:
     - provider: namecheap
-      zone: npmctl.com
+      zone: wyrmctl.com
       type: A
       name: '@'
       value: 172.16.0.10
       ttl: 300
       meta:
-        managed_by: npmctl
-        owner: npmctl-lander
-        resource_id: dns.npmctl-com.root-a
+        managed_by: wyrmctl
+        owner: wyrmctl-lander
+        resource_id: dns.wyrmctl-com.root-a
     - provider: namecheap
-      zone: npmctl.com
+      zone: wyrmctl.com
       type: CNAME
       name: www
-      value: npmctl.com
+      value: wyrmctl.com
       ttl: 300
       meta:
-        managed_by: npmctl
-        owner: npmctl-lander
-        resource_id: dns.npmctl-com.www-cname
+        managed_by: wyrmctl
+        owner: wyrmctl-lander
+        resource_id: dns.wyrmctl-com.www-cname
   pluginResources: []
   externalCertificates: []

@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://npmctl.com/schemas/plan-artifact.v1.schema.json",
-  "title": "npmctl PlanArtifact v1", "type": "object",
-  "required": ["apiVersion", "kind", "schemaVersion", "metadata", "spec"],
-  "properties": {"apiVersion": {"const": "npmctl.com/v1"}, "kind": {"const": "PlanArtifact"}, "schemaVersion": {"const": 1}, "metadata": {"type": "object", "required": ["id", "repository", "environment", "createdAt"]}, "spec": {"type": "object", "required": ["source", "inputs", "operations", "conflicts"]}, "signature": {"type": "object"}},
-  "additionalProperties": false
-}

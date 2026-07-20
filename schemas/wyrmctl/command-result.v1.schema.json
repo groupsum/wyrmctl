@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://wyrmctl.com/schemas/command-result.v1.schema.json",
+  "title": "wyrmctl CommandResult v1", "type": "object",
+  "required": ["apiVersion", "kind", "schemaVersion", "ok", "code", "mutated", "retryable"],
+  "properties": {"apiVersion": {"const": "wyrmctl.com/v1"}, "kind": {"const": "CommandResult"}, "schemaVersion": {"const": 1}, "ok": {"type": "boolean"}, "code": {"type": "string"}, "mutated": {"type": "boolean"}, "retryable": {"type": "boolean"}, "data": {}}
+}

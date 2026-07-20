@@ -1,7 +1,7 @@
 # Project tree status
 
 ```text
-npmctl/ [COMPLETE | HARDENED: repo checks passed]
+wyrmctl/ [COMPLETE | HARDENED: repo checks passed]
 ├── .codex/
 │   └── agents/
 │       ├── api-contracts/
@@ -16,15 +16,15 @@ npmctl/ [COMPLETE | HARDENED: repo checks passed]
 │           └── AGENTS.md [COMPLETE | HARDENED: Codex agent guidance]
 ├── .github/
 │   ├── actions/
-│   │   ├── npmctl-check/
+│   │   ├── wyrmctl-check/
 │   │   │   └── action.yml [COMPLETE | HARDENED: reusable composite action]
-│   │   ├── npmctl-real-npm-e2e/
+│   │   ├── wyrmctl-real-npm-e2e/
 │   │   │   └── action.yml [COMPLETE | HARDENED: reusable composite action]
-│   │   ├── npmctl-release-build/
+│   │   ├── wyrmctl-release-build/
 │   │   │   └── action.yml [COMPLETE | HARDENED: reusable composite action]
-│   │   ├── npmctl-schema-gate/
+│   │   ├── wyrmctl-schema-gate/
 │   │   │   └── action.yml [COMPLETE | HARDENED: reusable composite action]
-│   │   ├── npmctl-ssot-gate/
+│   │   ├── wyrmctl-ssot-gate/
 │   │   │   └── action.yml [COMPLETE | HARDENED: reusable composite action]
 │   │   └── setup-uv-python/
 │   │       └── action.yml [COMPLETE | HARDENED: reusable composite action]
@@ -96,8 +96,8 @@ npmctl/ [COMPLETE | HARDENED: repo checks passed]
 │       └── README.md [COMPLETE | HARDENED: CI-ready NPM compose; local Docker not executed here]
 ├── dist/
 │   ├── .gitignore [COMPLETE | BUILT: package artifact]
-│   ├── npmctl-0.2.0-py3-none-any.whl [COMPLETE | BUILT: package artifact]
-│   └── npmctl-0.2.0.tar.gz [COMPLETE | BUILT: package artifact]
+│   ├── wyrmctl-0.2.0-py3-none-any.whl [COMPLETE | BUILT: package artifact]
+│   └── wyrmctl-0.2.0.tar.gz [COMPLETE | BUILT: package artifact]
 ├── docs/
 │   ├── adrs/
 │   │   ├── ADR-0001-owner-scoped-reconciliation.md [COMPLETE | HARDENED: docs/ADR/spec/SEO copy linted]
@@ -159,9 +159,9 @@ npmctl/ [COMPLETE | HARDENED: repo checks passed]
 │       ├── gated-release.yml [COMPLETE | HARDENED: desired-state/workflow examples linted]
 │       └── real-npm-e2e.yml [COMPLETE | HARDENED: desired-state/workflow examples linted]
 ├── packages/
-│   └── npmctl/
+│   └── wyrmctl/
 │       ├── src/
-│       │   └── npmctl/
+│       │   └── wyrmctl/
 │       │       ├── client/
 │       │       │   ├── __init__.py [COMPLETE | HARDENED: typed core, owner-scoped, ruff+pytest]
 │       │       │   ├── access_lists.py [COMPLETE | HARDENED: typed core, owner-scoped, ruff+pytest]
@@ -213,7 +213,7 @@ npmctl/ [COMPLETE | HARDENED: repo checks passed]
 │   │   └── 2.10.4/
 │   │       ├── endpoint-capabilities.json [COMPLETE | HARDENED: JSON schema/capability contract validated]
 │   │       └── openapi.json [COMPLETE | HARDENED: JSON schema/capability contract validated]
-│   └── npmctl/
+│   └── wyrmctl/
 │       ├── desired-state.v1.schema.json [COMPLETE | HARDENED: JSON schema/capability contract validated]
 │       ├── migration-manifest.schema.json [COMPLETE | HARDENED: JSON schema/capability contract validated]
 │       └── plan-output.v1.schema.json [COMPLETE | HARDENED: JSON schema/capability contract validated]

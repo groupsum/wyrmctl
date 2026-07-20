@@ -1,5 +1,5 @@
 ---
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 kind: DesiredState
 schemaVersion: 3
 metadata:
@@ -14,7 +14,7 @@ spec:
       certificate_id: 1
       ssl_forced: 1
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: proxy.cert-id
   certificates: []

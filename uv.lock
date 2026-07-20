@@ -8,13 +8,13 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "npmctl",
-    "npmctl-cloudflare",
-    "npmctl-digitalocean",
-    "npmctl-godaddy",
-    "npmctl-namecheap",
-    "npmctl-route53",
-    "npmctl-workspace",
+    "wyrmctl",
+    "wyrmctl-cloudflare",
+    "wyrmctl-digitalocean",
+    "wyrmctl-godaddy",
+    "wyrmctl-namecheap",
+    "wyrmctl-route53",
+    "wyrmctl-workspace",
 ]
 
 [[package]]
@@ -531,142 +531,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/19/74/a633ee74eb36c44aa6d1095e7cc5569bebf04342ee146178e2d36600708b/jsonschema_specifications-2025.9.1.tar.gz", hash = "sha256:b540987f239e745613c7a9176f3edb72b832a4ac465cf02712288397832b5e8d", size = 32855, upload-time = "2025-09-08T01:34:59.186Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/41/45/1a4ed80516f02155c51f51e8cedb3c1902296743db0bbc66608a0db2814f/jsonschema_specifications-2025.9.1-py3-none-any.whl", hash = "sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe", size = 18437, upload-time = "2025-09-08T01:34:57.871Z" },
-]
-
-[[package]]
-name = "npmctl"
-version = "0.4.0"
-source = { editable = "packages/npmctl" }
-dependencies = [
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
-]
-
-[package.optional-dependencies]
-signing = [
-    { name = "cryptography" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "cryptography", marker = "extra == 'signing'", specifier = ">=44.0.0" },
-    { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "requests", specifier = ">=2.32.0" },
-    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0.1" },
-]
-provides-extras = ["signing"]
-
-[[package]]
-name = "npmctl-cloudflare"
-version = "0.4.0"
-source = { editable = "packages/npmctl-cloudflare" }
-dependencies = [
-    { name = "npmctl" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "npmctl", editable = "packages/npmctl" },
-    { name = "requests", specifier = ">=2.32.0" },
-]
-
-[[package]]
-name = "npmctl-digitalocean"
-version = "0.4.0"
-source = { editable = "packages/npmctl-digitalocean" }
-dependencies = [
-    { name = "npmctl" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "npmctl", editable = "packages/npmctl" },
-    { name = "requests", specifier = ">=2.32.0" },
-]
-
-[[package]]
-name = "npmctl-godaddy"
-version = "0.4.0"
-source = { editable = "packages/npmctl-godaddy" }
-dependencies = [
-    { name = "npmctl" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "npmctl", editable = "packages/npmctl" },
-    { name = "requests", specifier = ">=2.32.0" },
-]
-
-[[package]]
-name = "npmctl-namecheap"
-version = "0.4.0"
-source = { editable = "packages/npmctl-namecheap" }
-dependencies = [
-    { name = "npmctl" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "npmctl", editable = "packages/npmctl" },
-    { name = "requests", specifier = ">=2.32.0" },
-]
-
-[[package]]
-name = "npmctl-route53"
-version = "0.4.0"
-source = { editable = "packages/npmctl-route53" }
-dependencies = [
-    { name = "boto3" },
-    { name = "npmctl" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "boto3", specifier = ">=1.34.0" },
-    { name = "npmctl", editable = "packages/npmctl" },
-]
-
-[[package]]
-name = "npmctl-workspace"
-version = "0.4.0"
-source = { virtual = "." }
-
-[package.dev-dependencies]
-dev = [
-    { name = "build" },
-    { name = "coverage", extra = ["toml"] },
-    { name = "jsonschema" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "ruff" },
-    { name = "ssot-registry" },
-    { name = "uv-build" },
-    { name = "yamllint" },
-]
-
-[package.metadata]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "build", specifier = ">=1.2.2" },
-    { name = "coverage", extras = ["toml"], specifier = ">=7.8.0" },
-    { name = "jsonschema", specifier = ">=4.25.0" },
-    { name = "pytest", specifier = ">=8.3.0" },
-    { name = "pytest-cov", specifier = ">=6.0.0" },
-    { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "requests", specifier = ">=2.32.0" },
-    { name = "ruff", specifier = ">=0.12.0" },
-    { name = "ssot-registry", specifier = "==0.2.13" },
-    { name = "uv-build", specifier = ">=0.11.8,<0.12" },
-    { name = "yamllint", specifier = ">=1.35.0" },
 ]
 
 [[package]]
@@ -1293,6 +1157,142 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/2e/16c095c7f60aa5dd1f75da99d80fee981d9623370c7a84773ce30582424c/uv_build-0.11.14-py3-none-win32.whl", hash = "sha256:e4dae876aa58bf5b04f719e236cff90a5d3b0baa791b3b14ab8a7f33f1d57efd", size = 1427430, upload-time = "2026-05-12T18:00:43.013Z" },
     { url = "https://files.pythonhosted.org/packages/02/06/09ac00e2ba944baa57b7cc4f73fcbce757a6805a0afbd78c4d6c306a2cb1/uv_build-0.11.14-py3-none-win_amd64.whl", hash = "sha256:c4468bd59edfbc7358b39ee847119c1193a252be6d779d737d6c414d8ed447b2", size = 1497448, upload-time = "2026-05-12T18:00:36.1Z" },
     { url = "https://files.pythonhosted.org/packages/1d/72/33114060541e74db1e232076a0cc5bf21af09b39e048aa6b2cf77f6da655/uv_build-0.11.14-py3-none-win_arm64.whl", hash = "sha256:961eb26e0355c057dae12b4e078a924f726a2ad14715e34155d995dd239dbe6f", size = 1418583, upload-time = "2026-05-12T18:00:55.445Z" },
+]
+
+[[package]]
+name = "wyrmctl"
+version = "0.4.0"
+source = { editable = "packages/wyrmctl" }
+dependencies = [
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+]
+
+[package.optional-dependencies]
+signing = [
+    { name = "cryptography" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cryptography", marker = "extra == 'signing'", specifier = ">=44.0.0" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "requests", specifier = ">=2.32.0" },
+    { name = "tomli", marker = "python_full_version < '3.11'", specifier = ">=2.0.1" },
+]
+provides-extras = ["signing"]
+
+[[package]]
+name = "wyrmctl-cloudflare"
+version = "0.4.0"
+source = { editable = "packages/wyrmctl-cloudflare" }
+dependencies = [
+    { name = "requests" },
+    { name = "wyrmctl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "requests", specifier = ">=2.32.0" },
+    { name = "wyrmctl", editable = "packages/wyrmctl" },
+]
+
+[[package]]
+name = "wyrmctl-digitalocean"
+version = "0.4.0"
+source = { editable = "packages/wyrmctl-digitalocean" }
+dependencies = [
+    { name = "requests" },
+    { name = "wyrmctl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "requests", specifier = ">=2.32.0" },
+    { name = "wyrmctl", editable = "packages/wyrmctl" },
+]
+
+[[package]]
+name = "wyrmctl-godaddy"
+version = "0.4.0"
+source = { editable = "packages/wyrmctl-godaddy" }
+dependencies = [
+    { name = "requests" },
+    { name = "wyrmctl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "requests", specifier = ">=2.32.0" },
+    { name = "wyrmctl", editable = "packages/wyrmctl" },
+]
+
+[[package]]
+name = "wyrmctl-namecheap"
+version = "0.4.0"
+source = { editable = "packages/wyrmctl-namecheap" }
+dependencies = [
+    { name = "requests" },
+    { name = "wyrmctl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "requests", specifier = ">=2.32.0" },
+    { name = "wyrmctl", editable = "packages/wyrmctl" },
+]
+
+[[package]]
+name = "wyrmctl-route53"
+version = "0.4.0"
+source = { editable = "packages/wyrmctl-route53" }
+dependencies = [
+    { name = "boto3" },
+    { name = "wyrmctl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "boto3", specifier = ">=1.34.0" },
+    { name = "wyrmctl", editable = "packages/wyrmctl" },
+]
+
+[[package]]
+name = "wyrmctl-workspace"
+version = "0.4.0"
+source = { virtual = "." }
+
+[package.dev-dependencies]
+dev = [
+    { name = "build" },
+    { name = "coverage", extra = ["toml"] },
+    { name = "jsonschema" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "ruff" },
+    { name = "ssot-registry" },
+    { name = "uv-build" },
+    { name = "yamllint" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "build", specifier = ">=1.2.2" },
+    { name = "coverage", extras = ["toml"], specifier = ">=7.8.0" },
+    { name = "jsonschema", specifier = ">=4.25.0" },
+    { name = "pytest", specifier = ">=8.3.0" },
+    { name = "pytest-cov", specifier = ">=6.0.0" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "requests", specifier = ">=2.32.0" },
+    { name = "ruff", specifier = ">=0.12.0" },
+    { name = "ssot-registry", specifier = "==0.2.13" },
+    { name = "uv-build", specifier = ">=0.11.8,<0.12" },
+    { name = "yamllint", specifier = ">=1.35.0" },
 ]
 
 [[package]]

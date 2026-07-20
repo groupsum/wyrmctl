@@ -1,5 +1,5 @@
 ---
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 kind: DesiredState
 schemaVersion: 3
 metadata:
@@ -19,7 +19,7 @@ spec:
       allow_websocket_upgrade: 1
       block_exploits: 1
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: proxy.app
   certificates:
@@ -31,7 +31,7 @@ spec:
       api_payload:
         provider: letsencrypt
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: cert.wildcard-example
   accessLists:
@@ -41,7 +41,7 @@ spec:
         items: []
         clients: []
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: acl.private-admins
   redirectionHosts: []

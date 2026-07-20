@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/wyrmctl/schemas/desired-state.v2.schema.json",
+  "title": "wyrmctl desired-state v2",
+  "type": "object",
+  "required": ["apiVersion", "schemaVersion"],
+  "properties": {
+    "apiVersion": {"const": "wyrmctl.com/v1"},
+    "schemaVersion": {"const": 2},
+    "certificates": {"type": "array", "items": {"$ref": "#/$defs/certificate"}},
+    "access_lists": {"type": "array", "items": {"$ref": "#/$defs/accessList"}},
+    "proxy_hosts": {"type": "array", "items": {"$ref": "#/$defs/proxyHost"}},
+    "redirection_hosts": {"type": "array", "items": {"$ref": "#/$defs/domainResource"}},
+    "dead_hosts": {"type": "array", "items": {"$ref": "#/$defs/domainResource"}},
+    "streams": {"type": "array", "items": {"$ref": "#/$defs/stream"}},
+    "users": {"type": "array", "items": {"$ref": "#/$defs/user"}},
+    "settings": {"type": "array", "items": {"$ref": "#/$defs/setting"}},
+    "plugin_resources": {"type": "array", "items": {"$ref": "#/$defs/pluginResource"}},
+    "dns_records": {"type": "array", "items": {"$ref": "#/$defs/dnsRecord"}},
+    "external_certificates": {"type": "array", "items": {"$ref": "#/$defs/externalCertificate"}}
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "required": ["managed_by", "owner", "resource_id"],
+      "properties": {
+        "managed_by": {"const": "wyrmctl"},
+        "owner": {"type": "string", "minLength": 1},
+        "resource_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "certificate": {
+      "type": "object",
+      "required": ["name", "domain_names", "meta"],
+      "properties": {
+        "name": {"type": "string"},
+        "domain_names": {"type": "array", "items": {"type": "string"}},
+        "certificate_type": {"type": "string"},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "accessList": {
+      "type": "object",
+      "required": ["name", "meta"],
+      "properties": {
+        "name": {"type": "string"},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "proxyHost": {
+      "type": "object",
+      "required": ["domain_names", "forward_host", "forward_port", "meta"],
+      "properties": {
+        "domain_names": {"type": "array", "items": {"type": "string"}},
+        "forward_host": {"type": "string"},
+        "forward_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "forward_scheme": {"enum": ["http", "https"]},
+        "certificate_ref": {"type": "string"},
+        "certificate_id": {"type": "integer"},
+        "access_list_ref": {"type": "string"},
+        "access_list_id": {"type": "integer"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "domainResource": {
+      "type": "object",
+      "required": ["domain_names", "meta"],
+      "properties": {
+        "domain_names": {"type": "array", "items": {"type": "string"}},
+        "forward_domain_name": {"type": "string"},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "stream": {
+      "type": "object",
+      "required": ["incoming_port", "meta"],
+      "properties": {
+        "incoming_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "forward_host": {"type": "string"},
+        "forward_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "protocol": {"enum": ["tcp", "udp"]},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "user": {
+      "type": "object",
+      "required": ["email", "meta"],
+      "properties": {
+        "email": {"type": "string"},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "setting": {
+      "type": "object",
+      "required": ["name", "meta"],
+      "properties": {
+        "name": {"type": "string"},
+        "value": {},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      }
+    },
+    "pluginResource": {
+      "type": "object",
+      "required": ["provider", "payload"],
+      "properties": {
+        "provider": {"type": "string", "minLength": 1},
+        "payload": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "dnsRecord": {
+      "type": "object",
+      "required": ["provider", "zone", "type", "name", "value", "meta"],
+      "properties": {
+        "provider": {"type": "string", "minLength": 1},
+        "zone": {"type": "string", "minLength": 1},
+        "type": {"enum": ["A", "AAAA", "CNAME", "TXT", "MX", "SRV", "CAA"]},
+        "name": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1},
+        "ttl": {"type": "integer", "minimum": 60},
+        "priority": {"type": "integer", "minimum": 0},
+        "meta": {"$ref": "#/$defs/meta"}
+      },
+      "additionalProperties": false
+    },
+    "externalCertificate": {
+      "type": "object",
+      "required": ["provider", "reference", "domain_names", "meta"],
+      "properties": {
+        "provider": {"type": "string", "minLength": 1},
+        "reference": {"type": "string", "minLength": 1},
+        "name": {"type": "string"},
+        "domain_names": {"type": "array", "items": {"type": "string"}},
+        "api_payload": {"type": "object"},
+        "meta": {"$ref": "#/$defs/meta"}
+      },
+      "additionalProperties": true
+    }
+  }
+}

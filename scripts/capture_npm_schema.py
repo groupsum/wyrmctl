@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from npmctl.client import NpmClient
+from wyrmctl.client import NpmClient
 
 
 def main() -> int:

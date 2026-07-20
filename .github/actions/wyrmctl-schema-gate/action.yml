@@ -1,0 +1,17 @@
+---
+name: wyrmctl schema gate
+description: Validate committed schemas and desired-state examples.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: uv run python scripts/validate_schemas.py
+    - shell: bash
+      run: uv run wyrmctl --output json contract list
+    - shell: bash
+      run: |
+        for file in examples/desired-state/*.yaml; do
+          uv run wyrmctl validate "$file"
+        done
+    - shell: bash
+      run: uv run wyrmctl migrate examples/desired-state --check

@@ -1,14 +1,14 @@
 ---
-name: npmctl apply owned resources example
+name: wyrmctl apply owned resources example
 on: workflow_dispatch
 jobs:
   apply:
     runs-on: ubuntu-latest
     concurrency:
-      group: npmctl-apply-production
+      group: wyrmctl-apply-production
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-uv-python
-      - run: uv run npmctl plan infra/npm/desired-state --owner workload-a --output json > plan.json
-      - run: uv run npmctl apply infra/npm/desired-state --owner workload-a
+      - run: uv run wyrmctl plan infra/npm/desired-state --owner workload-a --output json > plan.json
+      - run: uv run wyrmctl apply infra/npm/desired-state --owner workload-a

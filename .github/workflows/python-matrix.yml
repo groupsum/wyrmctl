@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: npmctl-python-matrix-${{ github.ref }}
+  group: wyrmctl-python-matrix-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -27,17 +27,17 @@ jobs:
       - uses: ./.github/actions/setup-uv-python
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv run python -m compileall -q packages/npmctl/src
-      - run: uv run python -m compileall -q packages/npmctl-cloudflare/src
-      - run: uv run python -m compileall -q packages/npmctl-digitalocean/src
-      - run: uv run python -m compileall -q packages/npmctl-godaddy/src
-      - run: uv run python -m compileall -q packages/npmctl-namecheap/src
-      - run: uv run python -m compileall -q packages/npmctl-route53/src
+      - run: uv run python -m compileall -q packages/wyrmctl/src
+      - run: uv run python -m compileall -q packages/wyrmctl-cloudflare/src
+      - run: uv run python -m compileall -q packages/wyrmctl-digitalocean/src
+      - run: uv run python -m compileall -q packages/wyrmctl-godaddy/src
+      - run: uv run python -m compileall -q packages/wyrmctl-namecheap/src
+      - run: uv run python -m compileall -q packages/wyrmctl-route53/src
       - run: >
           uv run pytest
-          packages/npmctl/tests
-          packages/npmctl-cloudflare/tests
-          packages/npmctl-digitalocean/tests
-          packages/npmctl-godaddy/tests
-          packages/npmctl-namecheap/tests
-          packages/npmctl-route53/tests
+          packages/wyrmctl/tests
+          packages/wyrmctl-cloudflare/tests
+          packages/wyrmctl-digitalocean/tests
+          packages/wyrmctl-godaddy/tests
+          packages/wyrmctl-namecheap/tests
+          packages/wyrmctl-route53/tests

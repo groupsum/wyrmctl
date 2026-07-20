@@ -25,7 +25,7 @@ on:
         type: boolean
 
 concurrency:
-  group: npmctl-release-${{ inputs.version }}
+  group: wyrmctl-release-${{ inputs.version }}
   cancel-in-progress: false
 
 permissions:
@@ -63,7 +63,7 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          cat > /tmp/npmctl-bump-version.py <<'PY'
+          cat > /tmp/wyrmctl-bump-version.py <<'PY'
           import os
           import re
           from pathlib import Path
@@ -71,12 +71,12 @@ jobs:
           version = os.environ["VERSION"]
           version_paths = [
               Path("pyproject.toml"),
-              Path("packages/npmctl/pyproject.toml"),
-              Path("packages/npmctl-cloudflare/pyproject.toml"),
-              Path("packages/npmctl-digitalocean/pyproject.toml"),
-              Path("packages/npmctl-godaddy/pyproject.toml"),
-              Path("packages/npmctl-namecheap/pyproject.toml"),
-              Path("packages/npmctl-route53/pyproject.toml"),
+              Path("packages/wyrmctl/pyproject.toml"),
+              Path("packages/wyrmctl-cloudflare/pyproject.toml"),
+              Path("packages/wyrmctl-digitalocean/pyproject.toml"),
+              Path("packages/wyrmctl-godaddy/pyproject.toml"),
+              Path("packages/wyrmctl-namecheap/pyproject.toml"),
+              Path("packages/wyrmctl-route53/pyproject.toml"),
           ]
           for path in version_paths:
               text = path.read_text(encoding="utf-8")
@@ -88,7 +88,7 @@ jobs:
                   flags=re.M,
               )
               path.write_text(text, encoding="utf-8")
-          init = Path("packages/npmctl/src/npmctl/__init__.py")
+          init = Path("packages/wyrmctl/src/wyrmctl/__init__.py")
           text = init.read_text(encoding="utf-8")
           text = re.sub(
               r'(__version__\s*=\s*)["\'][^"\']*["\']',
@@ -97,7 +97,7 @@ jobs:
           )
           init.write_text(text, encoding="utf-8")
           PY
-          python /tmp/npmctl-bump-version.py
+          python /tmp/wyrmctl-bump-version.py
 
       - name: Commit release metadata
         shell: bash
@@ -107,17 +107,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add \
             pyproject.toml \
-            packages/npmctl/pyproject.toml \
-            packages/npmctl-cloudflare/pyproject.toml \
-            packages/npmctl-digitalocean/pyproject.toml \
-            packages/npmctl-godaddy/pyproject.toml \
-            packages/npmctl-namecheap/pyproject.toml \
-            packages/npmctl-route53/pyproject.toml \
-            packages/npmctl/src/npmctl/__init__.py
+            packages/wyrmctl/pyproject.toml \
+            packages/wyrmctl-cloudflare/pyproject.toml \
+            packages/wyrmctl-digitalocean/pyproject.toml \
+            packages/wyrmctl-godaddy/pyproject.toml \
+            packages/wyrmctl-namecheap/pyproject.toml \
+            packages/wyrmctl-route53/pyproject.toml \
+            packages/wyrmctl/src/wyrmctl/__init__.py
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "Release npmctl ${{ inputs.version }}"
+          git commit -m "Release wyrmctl ${{ inputs.version }}"
           git push
 
       - name: Refresh target SHA after release commit
@@ -131,9 +131,9 @@ jobs:
         run: |
           set -euo pipefail
           notes="release-notes.md"
-          echo "Release npmctl v${{ inputs.version }}" > "$notes"
+          echo "Release wyrmctl v${{ inputs.version }}" > "$notes"
           echo "tag-name=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          echo "release-name=npmctl v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "release-name=wyrmctl v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           echo "release-notes=$notes" >> "$GITHUB_OUTPUT"
 
       - name: Verify synchronized package versions and publish compatibility matrix
@@ -154,17 +154,17 @@ jobs:
           if mismatches:
               raise SystemExit(f"workspace versions are not synchronized: {mismatches}")
           PY
-          uv run npmctl --output json contract list > contract-compatibility-matrix.json
-          uv run npmctl migrate examples/desired-state --check
+          uv run wyrmctl --output json contract list > contract-compatibility-matrix.json
+          uv run wyrmctl migrate examples/desired-state --check
 
       - uses: actions/upload-artifact@v4
         with:
-          name: npmctl-contract-compatibility
+          name: wyrmctl-contract-compatibility
           path: contract-compatibility-matrix.json
 
       - uses: actions/upload-artifact@v4
         with:
-          name: npmctl-release-notes
+          name: wyrmctl-release-notes
           path: ${{ steps.prepare.outputs.release-notes }}
 
   gates:
@@ -234,7 +234,7 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.target_sha }}
       - uses: ./.github/actions/setup-uv-python
-      - uses: ./.github/actions/npmctl-release-build
+      - uses: ./.github/actions/wyrmctl-release-build
 
   publish:
     needs: [prepare, build]
@@ -243,11 +243,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: npmctl-dist
+          name: wyrmctl-dist
           path: dist
       - uses: actions/download-artifact@v4
         with:
-          name: npmctl-release-notes
+          name: wyrmctl-release-notes
           path: .tmp/release
 
       - name: Publish distributions to PyPI with Trusted Publishing

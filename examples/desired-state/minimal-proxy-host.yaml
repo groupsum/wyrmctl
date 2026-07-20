@@ -1,5 +1,5 @@
 ---
-apiVersion: npmctl.com/v1
+apiVersion: wyrmctl.com/v1
 kind: DesiredState
 schemaVersion: 3
 metadata:
@@ -12,7 +12,7 @@ spec:
       forward_host: minimal
       forward_port: 8080
       meta:
-        managed_by: npmctl
+        managed_by: wyrmctl
         owner: workload-a
         resource_id: proxy.minimal
   certificates: []

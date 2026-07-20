@@ -1,0 +1,24 @@
+---
+name: wyrmctl quality check
+description: Run linting, formatting, YAML linting, and pytest.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: uv run ruff check .
+    - shell: bash
+      run: uv run ruff format --check .
+    - shell: bash
+      run: uv run yamllint .
+    - shell: bash
+      run: uv run python -m compileall -q packages/wyrmctl/src
+    - shell: bash
+      run: uv run pytest
+    - shell: bash
+      run: |
+        uv run wyrmctl --output json contract list > .tmp-contract-matrix.json
+        uv run wyrmctl migrate examples/desired-state --check
+    - shell: bash
+      run: |
+        uv run python -m wyrmctl compliance artifacts --output-dir .tmp/compliance --source-dir .
+        uv run python -m wyrmctl compliance gate --artifact-dir .tmp/compliance
