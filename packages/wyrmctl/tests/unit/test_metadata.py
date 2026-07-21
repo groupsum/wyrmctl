@@ -4,6 +4,7 @@ import pytest
 
 from wyrmctl.errors import MetadataError
 from wyrmctl.metadata import MANAGED_BY, identity_from_meta, validate_metadata
+from wyrmctl.models import DesiredState
 from wyrmctl.profile import NPMCTL_PROFILE, WYRMCTL_PROFILE, current_profile, set_profile, use_profile
 
 
@@ -36,6 +37,8 @@ def test_identity_from_meta_treats_unmanaged_as_none() -> None:
 def test_profile_context_restores_native_identity() -> None:
     set_profile(WYRMCTL_PROFILE)
     assert current_profile() is WYRMCTL_PROFILE
+    assert DesiredState(api_version="custom").api_version == "custom"
     with use_profile(NPMCTL_PROFILE):
         assert current_profile() is NPMCTL_PROFILE
     assert current_profile() is WYRMCTL_PROFILE
+    assert DesiredState(api_version="custom").api_version == "custom"
