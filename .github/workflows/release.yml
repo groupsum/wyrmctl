@@ -273,12 +273,16 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         if: inputs.publish_pypi
         continue-on-error: true
+        env:
+          DOCKER_API_VERSION: "1.43"
         with:
           packages-dir: dist
           skip-existing: true
 
       - name: Publish distributions to PyPI with API token fallback
         if: inputs.publish_pypi && steps.pypi-trusted-publishing.outcome == 'failure'
+        env:
+          DOCKER_API_VERSION: "1.43"
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
