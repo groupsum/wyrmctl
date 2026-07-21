@@ -47,10 +47,10 @@ def test_workflow_trigger_and_gate_semantics() -> None:
     assert dispatch_inputs["publish_github_release"]["type"] == "boolean"
     assert dispatch_inputs["publish_pypi"]["type"] == "boolean"
     assert "workflow_run" not in release["on"]
-    assert "ci.yml" in release["jobs"]["gates"]["steps"][0]["run"]
-    assert "docs-ssot.yml" in release["jobs"]["gates"]["steps"][0]["run"]
-    assert "python-matrix.yml" in release["jobs"]["gates"]["steps"][0]["run"]
-    assert "live-npm-gate.yml" in release["jobs"]["gates"]["steps"][0]["run"]
+    gate_run = next(step["run"] for step in release["jobs"]["gates"]["steps"] if "ci.yml" in step.get("run", ""))
+    assert "docs-ssot.yml" in gate_run
+    assert "python-matrix.yml" in gate_run
+    assert "live-npm-gate.yml" in gate_run
     prepare_steps = release["jobs"]["prepare"]["steps"]
     bump_script = next(step["run"] for step in prepare_steps if step.get("name") == "Bump release metadata")
     commit_script = next(step["run"] for step in prepare_steps if step.get("name") == "Commit release metadata")
