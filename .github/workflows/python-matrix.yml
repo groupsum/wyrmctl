@@ -17,7 +17,8 @@ permissions:
 jobs:
   pytest:
     name: Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    runs-on:
+      group: shortlived
     strategy:
       fail-fast: false
       matrix:

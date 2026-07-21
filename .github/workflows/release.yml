@@ -173,6 +173,15 @@ jobs:
     runs-on:
       group: shortlived
     steps:
+      - name: Install GitHub CLI
+        shell: bash
+        run: |
+          if command -v gh >/dev/null 2>&1; then
+            exit 0
+          fi
+          sudo apt-get update
+          sudo apt-get install -y gh
+
       - name: Dispatch and wait for release gates
         env:
           GH_TOKEN: ${{ github.token }}
