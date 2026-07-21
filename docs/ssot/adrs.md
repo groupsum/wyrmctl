@@ -1,6 +1,6 @@
 # ADRs
 
-Generated entries: 21
+Generated entries: 31
 
 | id | number | title | status |
 | --- | --- | --- | --- |
@@ -25,3 +25,13 @@ Generated entries: 21
 | adr:1003 | 1003 | Provider-backed DNS reconciliation is a first-class apply surface | draft |
 | adr:1004 | 1004 | DNS record ownership and delete semantics for registrar APIs | draft |
 | adr:1005 | 1005 | DNS provider writers support the operational record set | accepted |
+| adr:1006 | 1006 | Version npmctl contracts on independent compatibility axes | accepted |
+| adr:1007 | 1007 | Bind execution to canonical digests and immutable reviewed artifacts | accepted |
+| adr:1008 | 1008 | Use explicit stepwise and transactional migrations | accepted |
+| adr:1009 | 1009 | Separate ordinary reconciliation from ownership and destructive migrations | accepted |
+| adr:1010 | 1010 | Negotiate versioned provider capabilities and target API profiles | accepted |
+| adr:1011 | 1011 | Use capability-specific rollback or forward-repair recovery | accepted |
+| adr:1012 | 1012 | Authenticate reviewed artifacts independently of transport | accepted |
+| adr:1013 | 1013 | Minimize redact and retain sensitive artifact data by policy | accepted |
+| adr:1014 | 1014 | Use leases idempotency keys and request correlation for migration execution | accepted |
+| adr:1015 | 1015 | Require plugins to participate in contract compatibility and migration registration | accepted |

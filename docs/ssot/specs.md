@@ -1,6 +1,6 @@
 # Specs
 
-Generated entries: 23
+Generated entries: 36
 
 | id | number | title | status | kind |
 | --- | --- | --- | --- | --- |
@@ -27,3 +27,16 @@ Generated entries: 23
 | spc:1005 | 1005 | DNS reconciliation and provider write contract | draft | normative |
 | spc:1006 | 1006 | Namecheap setHosts adapter contract | draft | normative |
 | spc:1007 | 1007 | DNS supported record type write contract | accepted | normative |
+| spc:1008 | 1008 | Contract registry and compatibility | accepted | normative |
+| spc:1009 | 1009 | Canonical serialization and lockfile | accepted | normative |
+| spc:1010 | 1010 | Immutable plan artifact and reviewed execution | accepted | normative |
+| spc:1011 | 1011 | Migration graph, manifest, execution, and ledger | in_review | normative |
+| spc:1012 | 1012 | Live-state import and resource migration controls | in_review | normative |
+| spc:1013 | 1013 | Provider capability and API-profile negotiation | accepted | normative |
+| spc:1014 | 1014 | Migration recovery and forward repair | accepted | operational |
+| spc:1015 | 1015 | Repository manifest and canonical npmctl layout | accepted | normative |
+| spc:1016 | 1016 | Artifact signing and trust policy | accepted | normative |
+| spc:1017 | 1017 | Artifact redaction retention and disposal | accepted | normative |
+| spc:1018 | 1018 | Migration leases idempotency and provider correlation | in_review | normative |
+| spc:1019 | 1019 | Plugin contract and migration registration | in_review | normative |
+| spc:1020 | 1020 | Versioned CLI automation and error contract | in_review | normative |
