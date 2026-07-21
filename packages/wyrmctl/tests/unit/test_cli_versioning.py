@@ -12,6 +12,7 @@ from wyrmctl.cli import _apply_plan_artifact, _write_plan_artifact, main
 from wyrmctl.contracts import semantic_digest
 from wyrmctl.models import DesiredState, ExistingState
 from wyrmctl.planner import Plan
+from wyrmctl.profile import NPMCTL_PROFILE
 from wyrmctl.repository import repository_document
 from wyrmctl.schema import Capabilities
 
@@ -19,6 +20,8 @@ from wyrmctl.schema import Capabilities
 def test_versioned_cli_commands(tmp_path: Path, capsys) -> None:
     assert main(["--output", "json", "version"]) == 0
     assert json.loads(capsys.readouterr().out)["contracts"]["DesiredState"]["current"] == 3
+    assert main(["--output", "json", "version"], profile=NPMCTL_PROFILE) == 0
+    assert main(["--output", "json", "version"], profile=NPMCTL_PROFILE) == 0
     assert main(["--output", "json", "contract", "list"]) == 0
     assert main(["--output", "json", "contract", "show", "DesiredState"]) == 0
 
