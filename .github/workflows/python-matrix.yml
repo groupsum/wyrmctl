@@ -28,6 +28,7 @@ jobs:
       - uses: ./.github/actions/setup-uv-python
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: false
       - run: uv run python -m compileall -q packages/wyrmctl/src
       - run: uv run python -m compileall -q packages/wyrmctl-cloudflare/src
       - run: uv run python -m compileall -q packages/wyrmctl-digitalocean/src
