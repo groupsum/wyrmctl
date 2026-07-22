@@ -289,6 +289,7 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist
           skip-existing: true
+          attestations: false
 
       - uses: softprops/action-gh-release@v2
         if: >
