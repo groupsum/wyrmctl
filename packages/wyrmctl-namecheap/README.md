@@ -1,6 +1,6 @@
 <h1 align="center">wyrmctl-namecheap</h1>
 
-<p align="center"><strong>Namecheap DNS provider plugin for wyrmctl</strong></p>
+<p align="center"><strong>Namecheap DNS provider plugin for Portwyrm through wyrmctl</strong></p>
 
 <p align="center">
   Extend <code>wyrmctl</code> with Namecheap-backed DNS record management for declarative workflows, provider discovery, and DNS-aware automation.
@@ -23,7 +23,7 @@
   <img src="https://raw.githubusercontent.com/groupsum/wyrmctl/master/docs/images/marketing/wyrmctl-architecture-infographic.png" alt="wyrmctl architecture infographic">
 </p>
 
-`wyrmctl-namecheap` is the Namecheap DNS provider package for `wyrmctl`. Install it when you want desired-state DNS records or DNS diagnostics to resolve through Namecheap instead of using only the base `wyrmctl` package.
+`wyrmctl-namecheap` is the Namecheap DNS provider package for the Portwyrm wyrmctl CLI. Install it when you want desired-state DNS records or DNS diagnostics to resolve through Namecheap instead of using only the base `wyrmctl` package.
 
 ## Supported Python Versions
 
@@ -41,7 +41,7 @@
 
 ### What is wyrmctl-namecheap?
 
-**Answer:** `wyrmctl-namecheap` is a plugin package that teaches `wyrmctl` how to talk to the Namecheap DNS API for DNS record operations and DNS provider diagnostics.
+**Answer:** `wyrmctl-namecheap` is a Portwyrm extension package that teaches wyrmctl how to talk to the Namecheap DNS API for DNS record operations and DNS provider diagnostics.
 
 ### When do I need wyrmctl-namecheap?
 

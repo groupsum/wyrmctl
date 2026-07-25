@@ -1,6 +1,6 @@
 <h1 align="center">wyrmctl-digitalocean</h1>
 
-<p align="center"><strong>DigitalOcean DNS provider plugin for wyrmctl</strong></p>
+<p align="center"><strong>DigitalOcean DNS provider plugin for Portwyrm through wyrmctl</strong></p>
 
 <p align="center">
   Extend <code>wyrmctl</code> with DigitalOcean-backed DNS record management for declarative workflows, provider discovery, and DNS-aware automation.
@@ -23,7 +23,7 @@
   <img src="https://raw.githubusercontent.com/groupsum/wyrmctl/master/docs/images/marketing/wyrmctl-architecture-infographic.png" alt="wyrmctl architecture infographic">
 </p>
 
-`wyrmctl-digitalocean` is the DigitalOcean DNS provider package for `wyrmctl`. Install it when you want desired-state DNS records or DNS diagnostics to resolve through DigitalOcean instead of using only the base `wyrmctl` package.
+`wyrmctl-digitalocean` is the DigitalOcean DNS provider package for the Portwyrm wyrmctl CLI. Install it when you want desired-state DNS records or DNS diagnostics to resolve through DigitalOcean instead of using only the base `wyrmctl` package.
 
 ## Supported Python Versions
 
@@ -41,7 +41,7 @@
 
 ### What is wyrmctl-digitalocean?
 
-**Answer:** `wyrmctl-digitalocean` is a plugin package that teaches `wyrmctl` how to talk to the DigitalOcean Domain Records API for DNS record operations and DNS provider diagnostics.
+**Answer:** `wyrmctl-digitalocean` is a Portwyrm extension package that teaches wyrmctl how to talk to the DigitalOcean Domain Records API for DNS record operations and DNS provider diagnostics.
 
 ### When do I need wyrmctl-digitalocean?
 

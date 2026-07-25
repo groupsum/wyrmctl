@@ -1,15 +1,15 @@
-# GitHub Actions
+# Portwyrm / wyrmctl GitHub Actions
 
-The repository includes local composite actions and gated workflows.
+The repository contains the Portwyrm CLI helper local composite actions and gated workflows.
 
 ## Local actions
 
 - `.github/actions/setup-uv-python`
-- `.github/actions/npmctl-check`
-- `.github/actions/npmctl-schema-gate`
-- `.github/actions/npmctl-ssot-gate`
-- `.github/actions/npmctl-real-npm-e2e`
-- `.github/actions/npmctl-release-build`
+- `.github/actions/wyrmctl-check`
+- `.github/actions/wyrmctl-schema-gate`
+- `.github/actions/wyrmctl-ssot-gate`
+- `.github/actions/wyrmctl-real-npm-e2e`
+- `.github/actions/wyrmctl-release-build`
 
 ## Workflows
 

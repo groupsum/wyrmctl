@@ -1,6 +1,6 @@
 <h1 align="center">wyrmctl</h1>
 
-<p align="center"><strong>Owner-scoped GitOps for Nginx Proxy Manager</strong></p>
+<p align="center"><strong>Portwyrm owner-scoped GitOps CLI for Nginx Proxy Manager</strong></p>
 
 <p align="center">
   Validate desired-state YAML, plan safe owner-scoped changes, apply clean reconciles, and adopt existing NPM resources only when you ask for it.
@@ -25,8 +25,22 @@
   <img src="https://raw.githubusercontent.com/groupsum/wyrmctl/master/docs/images/marketing/wyrmctl-architecture-infographic.png" alt="wyrmctl architecture infographic">
 </p>
 
-`wyrmctl` is an owner-scoped GitOps controller for Nginx Proxy Manager. It validates desired-state YAML, plans safe changes against a live NPM API, applies clean plans, and adopts unmanaged resources only when explicitly requested.
+`wyrmctl` is the dedicated Portwyrm CLI helper for Nginx Proxy Manager. Portwyrm provides the service and control-plane surface; wyrmctl provides the operator-facing Python CLI for validating desired state, planning safe changes against a live NPM API, applying clean plans, and explicitly adopting unmanaged resources.
 
+
+## Portwyrm relationship
+
+`wyrmctl` is part of the [Portwyrm](https://github.com/groupsum/portwyrm) project. Use it when you want Portwyrm-compatible desired-state validation, owner-scoped planning, NPM reconciliation, DNS provider discovery, and operator diagnostics from a local shell, CI job, or `uv` tool environment.
+
+Portwyrm remains the service/control-plane repository. `wyrmctl` is its dedicated CLI/helper distribution. The `npmctl` profile and `npmctl` aliases remain available only for compatibility with existing Nginx Proxy Manager workflows; new Portwyrm integrations should use the native `wyrmctl` profile and `wyrmctl.*` contracts.
+
+- Portwyrm: [github.com/groupsum/portwyrm](https://github.com/groupsum/portwyrm)
+- Wyrmctl: [github.com/groupsum/wyrmctl](https://github.com/groupsum/wyrmctl)
+- Container distribution: [ghcr.io/groupsum/portwyrm](https://github.com/groupsum/portwyrm/pkgs/container/portwyrm)
+
+### Portwyrm distribution status
+
+Portwyrm currently publishes its canonical runtime image through [GHCR](https://github.com/groupsum/portwyrm/pkgs/container/portwyrm). The Portwyrm Python project metadata and release workflow also reserve the [PyPI project](https://pypi.org/project/portwyrm/), but that distribution is not published yet. The recommended model is to keep GHCR as the production runtime channel and publish PyPI for Python-native embedding, local development, CLI-adjacent automation, and integration testing once the release gates and package scope are finalized.
 ## Versioned execution
 
 wyrmctl 0.4 adds independently versioned contracts, DesiredState v3, canonical semantic digests, repository manifests, lockfiles, immutable plan artifacts, transactional migration manifests, provider capability negotiation, and stable machine-readable command results.
@@ -349,6 +363,7 @@ docker compose -f deploy/npm/compose.ci.yml down
 
 ## Documentation
 
+- [Portwyrm relationship](docs/index.md)
 - [CLI](docs/cli.md)
 - [Desired state](docs/desired-state.md)
 - [Owner-scoped reconciliation](docs/owner-scoped-reconcile.md)

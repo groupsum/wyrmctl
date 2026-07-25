@@ -1,6 +1,6 @@
 <h1 align="center">wyrmctl-godaddy</h1>
 
-<p align="center"><strong>GoDaddy DNS provider plugin for wyrmctl</strong></p>
+<p align="center"><strong>GoDaddy DNS provider plugin for Portwyrm through wyrmctl</strong></p>
 
 <p align="center">
   Extend <code>wyrmctl</code> with GoDaddy-backed DNS record management for declarative workflows, provider discovery, and DNS-aware automation.
@@ -23,7 +23,7 @@
   <img src="https://raw.githubusercontent.com/groupsum/wyrmctl/master/docs/images/marketing/wyrmctl-architecture-infographic.png" alt="wyrmctl architecture infographic">
 </p>
 
-`wyrmctl-godaddy` is the GoDaddy DNS provider package for `wyrmctl`. Install it when you want desired-state DNS records or DNS diagnostics to resolve through GoDaddy instead of using only the base `wyrmctl` package.
+`wyrmctl-godaddy` is the GoDaddy DNS provider package for the Portwyrm wyrmctl CLI. Install it when you want desired-state DNS records or DNS diagnostics to resolve through GoDaddy instead of using only the base `wyrmctl` package.
 
 ## Supported Python Versions
 
@@ -41,7 +41,7 @@
 
 ### What is wyrmctl-godaddy?
 
-**Answer:** `wyrmctl-godaddy` is a plugin package that teaches `wyrmctl` how to talk to the GoDaddy Domains API for DNS record operations and DNS provider diagnostics.
+**Answer:** `wyrmctl-godaddy` is a Portwyrm extension package that teaches wyrmctl how to talk to the GoDaddy Domains API for DNS record operations and DNS provider diagnostics.
 
 ### When do I need wyrmctl-godaddy?
 

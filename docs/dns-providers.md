@@ -1,9 +1,11 @@
-# DNS provider packages
+# Portwyrm / wyrmctl DNS provider packages
 
-npmctl DNS providers are Python extension packages registered through the
-`npmctl.dns_providers` entry point group. The base provider contract requires
+These Python extensions add provider implementations to the Portwyrm wyrmctl CLI.
+
+wyrmctl DNS providers are Python extension packages registered through the
+`wyrmctl.dns_providers` entry point group. The base provider contract requires
 `name`, `zones()`, and `records(zone)`. Providers that participate in
-`npmctl apply` must also expose versioned `capabilities()` and
+`wyrmctl apply` must also expose versioned `capabilities()` and
 `apply_records(zone, records, context)`. A writer returns a
 `ProviderMutationResult` containing the operation identity, provider request
 identity when available, normalized readback digest, and verification result.
@@ -14,19 +16,19 @@ adapter.
 
 | Package | Provider name | API family | Supported writes | Mutation model |
 | --- | --- | --- | --- | --- |
-| `npmctl-namecheap` | `namecheap` | Namecheap XML API | A, AAAA, CNAME, TXT, MX, SRV, CAA | registrar host records |
-| `npmctl-cloudflare` | `cloudflare` | Cloudflare DNS Records API | A, AAAA, CNAME, TXT, MX, SRV, CAA | create, put, patch, delete records |
-| `npmctl-route53` | `route53` | AWS Route 53 API | A, AAAA, CNAME, TXT, MX, SRV, CAA | `ChangeResourceRecordSets` batches |
-| `npmctl-digitalocean` | `digitalocean` | DigitalOcean Domain Records API | A, AAAA, CNAME, TXT, MX, SRV, CAA | create, update, delete records |
-| `npmctl-godaddy` | `godaddy` | GoDaddy Domains API | A, AAAA, CNAME, TXT, MX, SRV, CAA | replace records by `{type, name}` |
+| `wyrmctl-namecheap` | `namecheap` | Namecheap XML API | A, AAAA, CNAME, TXT, MX, SRV, CAA | registrar host records |
+| `wyrmctl-cloudflare` | `cloudflare` | Cloudflare DNS Records API | A, AAAA, CNAME, TXT, MX, SRV, CAA | create, put, patch, delete records |
+| `wyrmctl-route53` | `route53` | AWS Route 53 API | A, AAAA, CNAME, TXT, MX, SRV, CAA | `ChangeResourceRecordSets` batches |
+| `wyrmctl-digitalocean` | `digitalocean` | DigitalOcean Domain Records API | A, AAAA, CNAME, TXT, MX, SRV, CAA | create, update, delete records |
+| `wyrmctl-godaddy` | `godaddy` | GoDaddy Domains API | A, AAAA, CNAME, TXT, MX, SRV, CAA | replace records by `{type, name}` |
 
-All provider writers accept the npmctl DNS record schema types `A`, `AAAA`,
+All provider writers accept the wyrmctl DNS record schema types `A`, `AAAA`,
 `CNAME`, `TXT`, `MX`, `SRV`, and `CAA`. MX records require `priority`; other
 record types reject `priority` at schema validation time.
 
 ## Cloudflare
 
-`npmctl-cloudflare` uses Cloudflare's DNS Records API:
+`wyrmctl-cloudflare` uses Cloudflare's DNS Records API:
 
 - `GET /zones`
 - `GET /zones/{zone_id}/dns_records`
@@ -40,7 +42,7 @@ to the target zone.
 
 ## AWS Route 53
 
-`npmctl-route53` uses Route 53 through `boto3`:
+`wyrmctl-route53` uses Route 53 through `boto3`:
 
 - `ListHostedZones`
 - `ListResourceRecordSets`
@@ -51,7 +53,7 @@ to the target hosted zone where possible.
 
 ## DigitalOcean
 
-`npmctl-digitalocean` uses DigitalOcean's Domains API:
+`wyrmctl-digitalocean` uses DigitalOcean's Domains API:
 
 - `GET /v2/domains`
 - `GET /v2/domains/{domain_name}/records`
@@ -63,7 +65,7 @@ Use `DIGITALOCEAN_TOKEN` with domain record permissions.
 
 ## GoDaddy
 
-`npmctl-godaddy` uses GoDaddy's Domains API:
+`wyrmctl-godaddy` uses GoDaddy's Domains API:
 
 - `GET /v1/domains`
 - `GET /v1/domains/{domain}/records`
@@ -79,11 +81,11 @@ type.
 
 - The authoritative DNS host for a zone must match the configured provider.
 - Credentials should be scoped to the target account, hosted zone, or domain.
-- Desired DNS records must keep npmctl owner metadata so apply and prune behavior
+- Desired DNS records must keep wyrmctl owner metadata so apply and prune behavior
   remain explicit, owner-scoped, and safe against foreign-owned resources.
 - Provider apply rewrites only the selected provider zone payload; unmanaged
   records returned by the provider are preserved unless they carry matching
-  npmctl ownership metadata and are omitted from desired state during
+  wyrmctl ownership metadata and are omitted from desired state during
   owner-scoped pruning.
 - Modern providers must read the zone back after mutation; an unverified result
   fails the apply instead of being reported as success.

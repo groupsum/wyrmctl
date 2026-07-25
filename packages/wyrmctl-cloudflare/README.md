@@ -1,6 +1,6 @@
 <h1 align="center">wyrmctl-cloudflare</h1>
 
-<p align="center"><strong>Cloudflare DNS provider plugin for wyrmctl</strong></p>
+<p align="center"><strong>Cloudflare DNS provider plugin for Portwyrm through wyrmctl</strong></p>
 
 <p align="center">
   Extend <code>wyrmctl</code> with Cloudflare-backed DNS record management for declarative workflows, provider discovery, and DNS-aware automation.
@@ -23,7 +23,7 @@
   <img src="https://raw.githubusercontent.com/groupsum/wyrmctl/master/docs/images/marketing/wyrmctl-architecture-infographic.png" alt="wyrmctl architecture infographic">
 </p>
 
-`wyrmctl-cloudflare` is the Cloudflare DNS provider package for `wyrmctl`. Install it when you want desired-state DNS records or DNS diagnostics to resolve through Cloudflare instead of using only the base `wyrmctl` package.
+`wyrmctl-cloudflare` is the Cloudflare DNS provider package for the Portwyrm wyrmctl CLI. Install it when you want desired-state DNS records or DNS diagnostics to resolve through Cloudflare instead of using only the base `wyrmctl` package.
 
 ## Supported Python Versions
 
@@ -41,7 +41,7 @@
 
 ### What is wyrmctl-cloudflare?
 
-**Answer:** `wyrmctl-cloudflare` is a plugin package that teaches `wyrmctl` how to talk to the Cloudflare DNS Records API for DNS record operations and DNS provider diagnostics.
+**Answer:** `wyrmctl-cloudflare` is a Portwyrm extension package that teaches wyrmctl how to talk to the Cloudflare DNS Records API for DNS record operations and DNS provider diagnostics.
 
 ### When do I need wyrmctl-cloudflare?
 
