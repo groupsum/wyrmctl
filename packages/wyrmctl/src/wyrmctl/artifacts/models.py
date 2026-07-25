@@ -35,6 +35,9 @@ class PlanArtifact:
     live_state_fingerprint: str
     operations: tuple[dict[str, Any], ...]
     conflicts: tuple[dict[str, Any], ...] = ()
+    dns_operations: tuple[dict[str, Any], ...] = ()
+    dns_conflicts: tuple[dict[str, Any], ...] = ()
+    dns_live_state_fingerprint: str = ""
     provider_capabilities: dict[str, int] = field(default_factory=dict)
     api_profiles: dict[str, str] = field(default_factory=dict)
     created_at: str = field(default_factory=utc_now)
@@ -63,6 +66,11 @@ class PlanArtifact:
                 "apiProfiles": self.api_profiles,
                 "operations": list(self.operations),
                 "conflicts": list(self.conflicts),
+                "dns": {
+                    "liveStateFingerprint": self.dns_live_state_fingerprint,
+                    "operations": list(self.dns_operations),
+                    "conflicts": list(self.dns_conflicts),
+                },
             },
         }
 

@@ -3,12 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from types import SimpleNamespace
-
 import yaml
 
 from wyrmctl.artifacts import PlanArtifact, write_artifact
-from wyrmctl.cli import _apply_plan_artifact, _write_plan_artifact, main
+from wyrmctl.cli import _apply_plan_artifact, _dns_live_fingerprint, _write_plan_artifact, main
 from wyrmctl.contracts import semantic_digest
 from wyrmctl.models import DesiredState, ExistingState
 from wyrmctl.planner import Plan
@@ -89,6 +87,33 @@ class FakeClient:
         return ExistingState()
 
 
+def test_dns_live_fingerprint_covers_missing_and_available_providers() -> None:
+    from wyrmctl.dns import DnsPlan, DnsPlanOperation
+    from wyrmctl.models import PlanAction
+
+    operation = DnsPlanOperation(
+        PlanAction.NOOP,
+        "namecheap",
+        "example.com",
+        "app",
+        "A",
+    )
+    plan = DnsPlan(operations=(operation,))
+    missing = _dns_live_fingerprint(plan, {})
+    assert missing.startswith("sha256:")
+
+    class Provider:
+        def records(self, zone):
+            assert zone == "example.com"
+            return (
+                {"name": "z", "type": "TXT", "value": "last"},
+                {"name": "a", "type": "A", "value": "192.0.2.1"},
+            )
+
+    available = _dns_live_fingerprint(plan, {"namecheap": Provider()})
+    assert available.startswith("sha256:")
+    assert available != missing
+
 def test_write_and_apply_empty_plan_artifact(tmp_path: Path, capsys, monkeypatch) -> None:
     capabilities = Capabilities.full_for_tests()
     plan = Plan((), (), 0)
@@ -123,14 +148,18 @@ def test_write_and_apply_empty_plan_artifact(tmp_path: Path, capsys, monkeypatch
     with pytest.raises(ValidationError, match="prune"):
         _write_plan_artifact(args, plan, DesiredState(), ExistingState(), capabilities)
     args.prune_owned = False
-    with pytest.raises(ValidationError, match="does not yet support DNS"):
-        _write_plan_artifact(
-            args,
-            plan,
-            SimpleNamespace(dns_records=(object(),)),
-            ExistingState(),
-            capabilities,
-        )
+    from wyrmctl.dns import DnsPlan
+
+    _write_plan_artifact(
+        args,
+        plan,
+        DesiredState(schema_version=3),
+        ExistingState(),
+        capabilities,
+        dns_plan=DnsPlan(),
+        dns_providers={},
+    )
+    assert yaml.safe_load(out.read_text(encoding="utf-8"))["spec"]["dns"]["operations"] == []
 
     import wyrmctl.cli as cli
 

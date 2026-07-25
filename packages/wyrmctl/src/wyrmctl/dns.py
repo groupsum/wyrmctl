@@ -59,7 +59,7 @@ class DnsPlanOperation:
         return identity[1] if identity is not None else None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "action": self.action.value,
             "kind": "dns_record",
             "provider": self.provider,
@@ -72,6 +72,9 @@ class DnsPlanOperation:
             "reason": self.reason,
             "diff": self.diff,
         }
+        if self.desired is not None:
+            payload["desired"] = self.desired
+        return payload
 
 
 @dataclass(frozen=True, slots=True)

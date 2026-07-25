@@ -21,7 +21,7 @@ from wyrmctl.artifacts import (
     verify_plan,
     write_artifact,
 )
-from wyrmctl.artifacts.execution import plan_from_artifact
+from wyrmctl.artifacts.execution import dns_plan_from_artifact, plan_from_artifact
 from wyrmctl.artifacts.models import ArtifactSignature
 from wyrmctl.artifacts.retention import disposal_candidates
 from wyrmctl.commands.artifacts import artifact_digest_command, artifact_inspect_command
@@ -29,7 +29,9 @@ from wyrmctl.commands.contracts import contract_check, contract_list, contract_s
 from wyrmctl.commands.import_live import import_live
 from wyrmctl.commands.lock import lock_check
 from wyrmctl.commands.repository import repository_status, repository_validate
+from wyrmctl.dns import DnsPlan, DnsPlanOperation
 from wyrmctl.errors import ArtifactError, ValidationError
+from wyrmctl.models import PlanAction
 from wyrmctl.lockfile import build_lock, check_lock, lock_digest
 from wyrmctl.repository import load_repository, repository_document
 
@@ -123,6 +125,59 @@ def test_artifact_models_build_and_binding() -> None:
         now=datetime(2025, 1, 2, tzinfo=timezone.utc),
     )
 
+
+def test_plan_artifact_round_trips_dns_operations_and_binds_live_state() -> None:
+    desired = {
+        "provider": "namecheap",
+        "zone": "example.com",
+        "name": "app",
+        "type": "A",
+        "value": "192.0.2.10",
+        "ttl": 300,
+    }
+    dns_plan = DnsPlan(
+        operations=(
+            DnsPlanOperation(
+                action=PlanAction.CREATE,
+                provider="namecheap",
+                zone="example.com",
+                name="app",
+                type="A",
+                desired=desired,
+                reason="missing",
+            ),
+        ),
+    )
+    artifact = build_plan_artifact(
+        {"operations": [], "conflicts": []},
+        artifact_id="dns-plan",
+        repository="org/repo",
+        environment="production",
+        commit="abc",
+        desired_state_digest="desired",
+        live_state_fingerprint="npm-live",
+        dns_plan=dns_plan,
+        dns_live_state_fingerprint="dns-live",
+    )
+    document = artifact.to_dict()
+    assert document["spec"]["dns"]["operations"][0]["desired"] == desired
+    restored = dns_plan_from_artifact(document)
+    assert restored.operations[0].desired == desired
+    assert restored.operations[0].provider == "namecheap"
+
+    binding = {
+        "repository": "org/repo",
+        "environment": "production",
+        "commit": "abc",
+        "desired_state_digest": "desired",
+        "live_state_fingerprint": "npm-live",
+        "dns_live_state_fingerprint": "dns-live",
+        "provider_capabilities": {},
+        "api_profiles": {},
+    }
+    validate_plan_binding(artifact, **binding)
+    with pytest.raises(ArtifactError, match="DNS live state"):
+        validate_plan_binding(artifact, **(binding | {"dns_live_state_fingerprint": "changed"}))
 
 def test_artifact_codec_signing_redaction_and_retention(tmp_path: Path) -> None:
     artifact = _artifact()
@@ -369,6 +424,45 @@ def test_plan_artifact_rehydration_and_guards() -> None:
         with pytest.raises(ArtifactError, match=message):
             plan_from_artifact(document)
 
+
+def test_dns_plan_artifact_rehydration_guards_and_conflicts() -> None:
+    with pytest.raises(ArtifactError, match="requires a PlanArtifact"):
+        dns_plan_from_artifact({"kind": "Bad", "schemaVersion": 1})
+
+    def document(operations=None, conflicts=None):
+        return {
+            "kind": "PlanArtifact",
+            "schemaVersion": 1,
+            "spec": {
+                "dns": {
+                    "operations": [] if operations is None else operations,
+                    "conflicts": [] if conflicts is None else conflicts,
+                }
+            },
+        }
+
+    with pytest.raises(ArtifactError, match="invalid DNS operation"):
+        dns_plan_from_artifact(document([{"kind": "stream", "action": "noop"}]))
+    with pytest.raises(ArtifactError, match="invalid DNS operation"):
+        dns_plan_from_artifact(document([{"kind": "dns_record", "action": "create"}]))
+
+    restored = dns_plan_from_artifact(
+        document(
+            [],
+            [
+                {
+                    "code": "blocked",
+                    "message": "blocked",
+                    "provider": "namecheap",
+                    "zone": "example.com",
+                    "owner": "owner",
+                    "resource_id": "record",
+                }
+            ],
+        )
+    )
+    assert restored.conflicts[0].provider == "namecheap"
+    assert restored.conflicts[0].resource_id == "record"
 
 def test_lock_rejects_other_known_contract_kind() -> None:
     plan = _artifact().to_dict()

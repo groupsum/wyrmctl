@@ -18,6 +18,8 @@ def build_plan_artifact(
     commit: str,
     desired_state_digest: str,
     live_state_fingerprint: str,
+    dns_plan: Any | None = None,
+    dns_live_state_fingerprint: str = "",
     provider_capabilities: dict[str, int] | None = None,
     api_profiles: dict[str, str] | None = None,
     expires_at: str | None = None,
@@ -25,6 +27,11 @@ def build_plan_artifact(
     payload = plan.to_dict() if hasattr(plan, "to_dict") else dict(plan)
     operations = tuple(sorted(payload.get("operations", []), key=_operation_key))
     conflicts = tuple(sorted(payload.get("conflicts", []), key=lambda item: (str(item.get("code", "")), str(item))))
+    dns_payload = dns_plan.to_dict() if hasattr(dns_plan, "to_dict") else dict(dns_plan or {})
+    dns_operations = tuple(sorted(dns_payload.get("operations", []), key=_operation_key))
+    dns_conflicts = tuple(
+        sorted(dns_payload.get("conflicts", []), key=lambda item: (str(item.get("code", "")), str(item)))
+    )
     return PlanArtifact(
         artifact_id=artifact_id,
         repository=repository,
@@ -34,6 +41,9 @@ def build_plan_artifact(
         live_state_fingerprint=live_state_fingerprint,
         operations=operations,
         conflicts=conflicts,
+        dns_operations=dns_operations,
+        dns_conflicts=dns_conflicts,
+        dns_live_state_fingerprint=dns_live_state_fingerprint,
         provider_capabilities=provider_capabilities or {},
         api_profiles=api_profiles or {},
         expires_at=expires_at,
@@ -48,6 +58,7 @@ def validate_plan_binding(
     commit: str,
     desired_state_digest: str,
     live_state_fingerprint: str,
+    dns_live_state_fingerprint: str = "",
     provider_capabilities: dict[str, int],
     api_profiles: dict[str, str],
     now: datetime | None = None,
@@ -58,6 +69,7 @@ def validate_plan_binding(
         "commit": (artifact.commit, commit),
         "desired state": (artifact.desired_state_digest, desired_state_digest),
         "live state": (artifact.live_state_fingerprint, live_state_fingerprint),
+        "DNS live state": (artifact.dns_live_state_fingerprint, dns_live_state_fingerprint),
         "provider capabilities": (artifact.provider_capabilities, provider_capabilities),
         "API profiles": (artifact.api_profiles, api_profiles),
     }

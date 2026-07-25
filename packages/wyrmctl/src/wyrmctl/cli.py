@@ -510,7 +510,15 @@ def _dispatch(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
                 raise ValidationError(str(exc)) from exc
         if args.command == "plan" or getattr(args, "dry_run", False):
             if getattr(args, "artifact_out", None):
-                _write_plan_artifact(args, plan, desired, existing, capabilities)
+                _write_plan_artifact(
+                    args,
+                    plan,
+                    desired,
+                    existing,
+                    capabilities,
+                    dns_plan=dns_plan,
+                    dns_providers=dns_providers,
+                )
             write_output(args.output, plan_payload, _format_combined_plan_text(plan, dns_plan))
             return EXIT_OK if plan.ok and dns_plan.ok else EXIT_CONFLICT
         if not plan.ok or not dns_plan.ok:
@@ -538,7 +546,15 @@ def _dispatch(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
     return EXIT_USAGE_OR_VALIDATION  # pragma: no cover
 
 
-def _write_plan_artifact(args: argparse.Namespace, plan: Any, desired: Any, existing: Any, capabilities: Any) -> None:
+def _write_plan_artifact(
+    args: argparse.Namespace,
+    plan: Any,
+    desired: Any,
+    existing: Any,
+    capabilities: Any,
+    dns_plan: Any | None = None,
+    dns_providers: Any | None = None,
+) -> None:
     from dataclasses import asdict
 
     from wyrmctl.artifacts import build_plan_artifact, write_artifact
@@ -546,8 +562,6 @@ def _write_plan_artifact(args: argparse.Namespace, plan: Any, desired: Any, exis
 
     if args.command != "plan" or args.prune_owned:
         raise ValidationError("ordinary PlanArtifact output does not authorize prune/delete operations")
-    if desired.dns_records:
-        raise ValidationError("PlanArtifact apply does not yet support DNS operations; use ordinary plan/apply")
     repository = args.repository or Path.cwd().name
     artifact = build_plan_artifact(
         plan,
@@ -557,6 +571,8 @@ def _write_plan_artifact(args: argparse.Namespace, plan: Any, desired: Any, exis
         commit=args.commit or "working-tree",
         desired_state_digest=semantic_digest(asdict(desired)),
         live_state_fingerprint=semantic_digest([item.to_dict() for item in existing.resources()]),
+        dns_plan=dns_plan,
+        dns_live_state_fingerprint=_dns_live_fingerprint(dns_plan, dns_providers),
         provider_capabilities={},
         api_profiles={"npm": capabilities.api_profile},
         expires_at=args.expires_at,
@@ -566,13 +582,15 @@ def _write_plan_artifact(args: argparse.Namespace, plan: Any, desired: Any, exis
 
 def _apply_plan_artifact(args: argparse.Namespace, client: Any) -> int:
     from wyrmctl.apply import ApplyEngine
-    from wyrmctl.artifacts import plan_from_artifact, read_artifact, validate_plan_binding
+    from wyrmctl.artifacts import dns_plan_from_artifact, plan_from_artifact, read_artifact, validate_plan_binding
     from wyrmctl.contracts import semantic_digest
 
     document = read_artifact(args.artifact, strict=True)
     metadata = document["metadata"]
     spec = document["spec"]
     plan = plan_from_artifact(document)
+    dns_plan = dns_plan_from_artifact(document)
+    dns_providers = PluginRegistry.discover().dns_providers if dns_plan.operations else {}
     capabilities = client.capabilities()
     existing = client.existing_state(
         include_certificates=capabilities.certificates.list,
@@ -589,6 +607,9 @@ def _apply_plan_artifact(args: argparse.Namespace, client: Any) -> int:
         live_state_fingerprint=str(spec["inputs"]["liveStateFingerprint"]),
         operations=tuple(spec["operations"]),
         conflicts=tuple(spec.get("conflicts", [])),
+        dns_operations=tuple(spec.get("dns", {}).get("operations", [])),
+        dns_conflicts=tuple(spec.get("dns", {}).get("conflicts", [])),
+        dns_live_state_fingerprint=str(spec.get("dns", {}).get("liveStateFingerprint", "")),
         provider_capabilities=dict(spec.get("providerCapabilities", {})),
         api_profiles=dict(spec.get("apiProfiles", {})),
         created_at=str(metadata["createdAt"]),
@@ -601,14 +622,42 @@ def _apply_plan_artifact(args: argparse.Namespace, client: Any) -> int:
         commit=args.commit or artifact.commit,
         desired_state_digest=artifact.desired_state_digest,
         live_state_fingerprint=semantic_digest([item.to_dict() for item in existing.resources()]),
+        dns_live_state_fingerprint=_dns_live_fingerprint(dns_plan, dns_providers),
         provider_capabilities={},
         api_profiles={"npm": capabilities.api_profile},
     )
     result = ApplyEngine(client=client, capabilities=capabilities, existing_state=existing).apply(plan)
-    payload = {"ok": True, "artifact": artifact.digest, "result": result.to_dict()}
+    from wyrmctl.dns import apply_dns_plan
+
+    dns_result = apply_dns_plan(dns_plan, dns_providers)
+    payload = {
+        "ok": True,
+        "artifact": artifact.digest,
+        "result": result.to_dict(),
+        "dns": dns_result.to_dict(),
+    }
     write_output(args.output, payload, json.dumps(payload, indent=2, sort_keys=True))
     return EXIT_OK
 
+
+def _dns_live_fingerprint(dns_plan: Any, providers: Any) -> str:
+    from wyrmctl.contracts import semantic_digest
+
+    operations = getattr(dns_plan, "operations", ())
+    providers = providers or {}
+    scopes = sorted({(operation.provider, operation.zone) for operation in operations})
+    resources = []
+    for provider_name, zone in scopes:
+        provider = providers.get(provider_name)
+        if provider is None:
+            resources.append({"provider": provider_name, "zone": zone, "missing": True})
+            continue
+        records = sorted(
+            (dict(record) for record in provider.records(zone)),
+            key=lambda item: (str(item.get("name", "")), str(item.get("type", "")), str(item.get("value", ""))),
+        )
+        resources.append({"provider": provider_name, "zone": zone, "records": records})
+    return semantic_digest(resources)
 
 def _schema_command(args: argparse.Namespace, client: Any | None) -> int:
     from wyrmctl.schema import Capabilities, load_openapi_schema

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from wyrmctl.dns import DnsPlan, DnsPlanConflict, DnsPlanOperation
 from wyrmctl.errors import ArtifactError
 from wyrmctl.models import (
     DesiredAccessList,
@@ -27,6 +28,57 @@ def plan_from_artifact(document: dict[str, Any]) -> Plan:
     conflicts = tuple(_conflict(item, index) for index, item in enumerate(_items(spec, "conflicts")))
     return Plan(operations, conflicts, sum(operation.existing is not None for operation in operations))
 
+
+def dns_plan_from_artifact(document: dict[str, Any]) -> DnsPlan:
+    if document.get("kind") != "PlanArtifact" or document.get("schemaVersion") != 1:
+        raise ArtifactError("INVALID_PLAN_ARTIFACT", "apply requires a PlanArtifact schema 1 document")
+    spec = _mapping(document.get("spec"), "spec")
+    dns = _mapping(spec.get("dns", {}), "spec.dns")
+    operations = tuple(_dns_operation(item, index) for index, item in enumerate(_items(dns, "operations")))
+    conflicts = tuple(_dns_conflict(item, index) for index, item in enumerate(_items(dns, "conflicts")))
+    existing_count = sum(operation.existing is not None for operation in operations)
+    return DnsPlan(operations=operations, conflicts=conflicts, existing_count=existing_count)
+
+
+def _dns_operation(value: Any, index: int) -> DnsPlanOperation:
+    item = _mapping(value, f"dns.operations[{index}]")
+    if item.get("kind") != "dns_record":
+        raise ArtifactError("INVALID_DNS_PLAN_OPERATION", f"invalid DNS operation at index {index}")
+    try:
+        action = PlanAction(str(item["action"]))
+        provider = str(item["provider"])
+        zone = str(item["zone"])
+        name = str(item["name"])
+        record_type = str(item["type"])
+    except (KeyError, ValueError) as exc:
+        raise ArtifactError("INVALID_DNS_PLAN_OPERATION", f"invalid DNS operation at index {index}") from exc
+    return DnsPlanOperation(
+        action=action,
+        provider=provider,
+        zone=zone,
+        name=name,
+        type=record_type,
+        desired=_optional_mapping(item.get("desired"), f"dns.operations[{index}].desired"),
+        existing=_optional_mapping(item.get("existing"), f"dns.operations[{index}].existing"),
+        reason=str(item.get("reason", "")),
+        diff=_mapping(item.get("diff", {}), f"dns.operations[{index}].diff"),
+    )
+
+
+def _dns_conflict(value: Any, index: int) -> DnsPlanConflict:
+    item = _mapping(value, f"dns.conflicts[{index}]")
+    return DnsPlanConflict(
+        code=str(item.get("code", "artifact_dns_conflict")),
+        message=str(item.get("message", "artifact contains a DNS conflict")),
+        provider=item.get("provider"),
+        zone=item.get("zone"),
+        owner=item.get("owner"),
+        resource_id=item.get("resource_id"),
+    )
+
+
+def _optional_mapping(value: Any, path: str) -> dict[str, Any] | None:
+    return None if value is None else _mapping(value, path)
 
 def _operation(value: Any, index: int) -> PlanOperation:
     item = _mapping(value, f"operations[{index}]")
