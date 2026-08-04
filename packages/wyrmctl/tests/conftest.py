@@ -48,6 +48,13 @@ def desired_doc() -> dict[str, Any]:
     }
 
 
+@pytest.fixture(autouse=True)
+def isolate_certificate_issuance_state(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Prevent concurrent matrix jobs from sharing certificate guard state."""
+
+    monkeypatch.setenv("NPMCTL_CERTIFICATE_STATE_DIR", str(tmp_path / "certificate-state"))
+
+
 @pytest.fixture
 def desired_file(tmp_path: Path, desired_doc: dict[str, Any]) -> Path:
     path = tmp_path / "desired.yaml"
