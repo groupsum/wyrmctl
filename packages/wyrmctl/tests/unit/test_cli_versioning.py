@@ -114,6 +114,7 @@ def test_dns_live_fingerprint_covers_missing_and_available_providers() -> None:
     assert available.startswith("sha256:")
     assert available != missing
 
+
 def test_write_and_apply_empty_plan_artifact(tmp_path: Path, capsys, monkeypatch) -> None:
     capabilities = Capabilities.full_for_tests()
     plan = Plan((), (), 0)

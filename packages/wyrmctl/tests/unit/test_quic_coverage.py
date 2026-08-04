@@ -85,9 +85,7 @@ def test_client_accepts_opaque_quic_passthrough_provider(monkeypatch: pytest.Mon
     monkeypatch.setattr(
         client,
         "_request",
-        lambda *_args, **_kwargs: {
-            "quic_sni_passthrough": {"supported": True, "tls_termination": False}
-        },
+        lambda *_args, **_kwargs: {"quic_sni_passthrough": {"supported": True, "tls_termination": False}},
     )
 
     assert client.capabilities().quic_passthrough_hosts.create

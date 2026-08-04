@@ -179,6 +179,7 @@ def test_plan_artifact_round_trips_dns_operations_and_binds_live_state() -> None
     with pytest.raises(ArtifactError, match="DNS live state"):
         validate_plan_binding(artifact, **(binding | {"dns_live_state_fingerprint": "changed"}))
 
+
 def test_artifact_codec_signing_redaction_and_retention(tmp_path: Path) -> None:
     artifact = _artifact()
     yaml_path = write_artifact(tmp_path / "plan.yaml", artifact.to_dict())
@@ -463,6 +464,7 @@ def test_dns_plan_artifact_rehydration_guards_and_conflicts() -> None:
     )
     assert restored.conflicts[0].provider == "namecheap"
     assert restored.conflicts[0].resource_id == "record"
+
 
 def test_lock_rejects_other_known_contract_kind() -> None:
     plan = _artifact().to_dict()
