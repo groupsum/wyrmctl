@@ -47,6 +47,7 @@ class Capabilities:
     redirection_hosts: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     dead_hosts: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     streams: ResourceCapabilities = field(default_factory=ResourceCapabilities)
+    quic_passthrough_hosts: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     users: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     settings: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     audit_log: ResourceCapabilities = field(default_factory=ResourceCapabilities)
@@ -55,7 +56,18 @@ class Capabilities:
     @classmethod
     def empty(cls) -> Capabilities:
         empty = ResourceCapabilities()
-        return cls(empty, empty, empty, empty, empty, empty, empty, empty, empty)
+        return cls(
+            proxy_hosts=empty,
+            certificates=empty,
+            access_lists=empty,
+            redirection_hosts=empty,
+            dead_hosts=empty,
+            streams=empty,
+            quic_passthrough_hosts=empty,
+            users=empty,
+            settings=empty,
+            audit_log=empty,
+        )
 
     @classmethod
     def full_for_tests(cls) -> Capabilities:
@@ -68,6 +80,7 @@ class Capabilities:
             redirection_hosts=cap,
             dead_hosts=cap,
             streams=cap,
+            quic_passthrough_hosts=cap,
             users=cap,
             settings=cap,
             audit_log=read_only,
@@ -93,6 +106,7 @@ class Capabilities:
             redirection_hosts=_detect(paths, "/nginx/redirection-hosts"),
             dead_hosts=_detect(paths, "/nginx/dead-hosts"),
             streams=_detect(paths, "/nginx/streams"),
+            quic_passthrough_hosts=_detect(paths, "/v2/quic-passthrough-hosts"),
             users=_detect(paths, "/users"),
             settings=_detect(paths, "/settings"),
             audit_log=_detect(paths, "/audit-log"),
@@ -112,6 +126,8 @@ class Capabilities:
             return self.dead_hosts
         if kind == ResourceKind.STREAM:
             return self.streams
+        if kind == ResourceKind.QUIC_PASSTHROUGH_HOST:
+            return self.quic_passthrough_hosts
         if kind == ResourceKind.USER:
             return self.users
         if kind == ResourceKind.SETTING:
@@ -132,6 +148,7 @@ class Capabilities:
             "redirection_hosts": self.redirection_hosts.to_dict(),
             "dead_hosts": self.dead_hosts.to_dict(),
             "streams": self.streams.to_dict(),
+            "quic_passthrough_hosts": self.quic_passthrough_hosts.to_dict(),
             "users": self.users.to_dict(),
             "settings": self.settings.to_dict(),
             "audit_log": self.audit_log.to_dict(),

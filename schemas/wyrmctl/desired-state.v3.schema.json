@@ -9,7 +9,47 @@
     "kind": {"const": "DesiredState"},
     "schemaVersion": {"const": 3},
     "metadata": {"type": "object"},
-    "spec": {"type": "object"}
+    "spec": {
+      "type": "object",
+      "properties": {
+        "quicPassthroughHosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["server_name", "target", "target_port", "meta"],
+            "properties": {
+              "listen_address": {"type": "string", "minLength": 1, "default": "0.0.0.0"},
+              "incoming_port": {"type": "integer", "minimum": 1, "maximum": 65535, "default": 443},
+              "server_name": {"type": "string", "format": "hostname"},
+              "alpn": {"const": "h3", "default": "h3"},
+              "target_kind": {"enum": ["ip", "dns", "docker"], "default": "docker"},
+              "target": {"type": "string", "minLength": 1},
+              "target_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+              "idle_timeout_seconds": {
+                "type": "integer",
+                "minimum": 5,
+                "maximum": 86400,
+                "default": 1800
+              },
+              "enabled": {"type": ["boolean", "integer"], "default": true},
+              "meta": {
+                "type": "object",
+                "required": ["managed_by", "owner", "resource_id"],
+                "properties": {
+                  "managed_by": {"type": "string", "minLength": 1},
+                  "owner": {"type": "string", "minLength": 1},
+                  "resource_id": {"type": "string", "minLength": 1}
+                },
+                "additionalProperties": true
+              },
+              "api_payload": {"type": "object"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "additionalProperties": false
 }

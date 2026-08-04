@@ -80,6 +80,7 @@ def _dns_conflict(value: Any, index: int) -> DnsPlanConflict:
 def _optional_mapping(value: Any, path: str) -> dict[str, Any] | None:
     return None if value is None else _mapping(value, path)
 
+
 def _operation(value: Any, index: int) -> PlanOperation:
     item = _mapping(value, f"operations[{index}]")
     try:
@@ -113,6 +114,9 @@ def _desired(kind: ResourceKind, value: Any, index: int) -> Any:
         return DesiredCertificate.from_mapping(item, path=path)
     if kind == ResourceKind.ACCESS_LIST:
         return DesiredAccessList.from_mapping(item, path=path)
+    api_payload = item.get("api_payload")
+    if isinstance(api_payload, dict):
+        item = {**api_payload, **{key: value for key, value in item.items() if key != "api_payload"}}
     return DesiredGenericResource.from_mapping(kind, item, path=path)
 
 

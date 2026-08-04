@@ -1,0 +1,24 @@
+schema_version: "0.2.0"
+kind: "spec"
+id: "spc:1021"
+number: 1021
+slug: "quic-passthrough-desired-state-resource"
+title: "QUIC passthrough desired-state resource"
+status: "accepted"
+origin: "repo-local"
+decision_date: null
+tags: []
+summary: "Wyrmctl SHALL parse and validate quicPassthroughHosts in schema v3, preserve managed_by owner and resource_id metadata, discover authenticated server capabilities, reject unsupported providers and TLS-terminating implementations, plan owner-scoped create update noop and delete operations, preserve the resource in signed or hashed artifacts, and apply the exact reviewed artifact. npmctl profiles SHALL fail closed with a recommendation to use Portwyrm and Wyrmctl."
+supersedes: []
+superseded_by: []
+status_notes:
+  -
+    status: "accepted"
+    note: "Accepted for Wyrmctl 0.4.1."
+    at: "2026-08-04T03:43:24Z"
+references: []
+body: |-
+  Wyrmctl SHALL parse and validate quicPassthroughHosts in schema v3, preserve managed_by owner and resource_id metadata, discover authenticated server capabilities, reject unsupported providers and TLS-terminating implementations, plan owner-scoped create update noop and delete operations, preserve the resource in signed or hashed artifacts, and apply the exact reviewed artifact. npmctl profiles SHALL fail closed with a recommendation to use Portwyrm and Wyrmctl.
+spec_kind: "normative"
+adr_ids:
+  - "adr:1016"

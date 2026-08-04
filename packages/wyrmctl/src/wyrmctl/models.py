@@ -45,6 +45,7 @@ class ResourceKind(StrEnum):
     REDIRECTION_HOST = "redirection_host"
     DEAD_HOST = "dead_host"
     STREAM = "stream"
+    QUIC_PASSTHROUGH_HOST = "quic_passthrough_host"
     USER = "user"
     SETTING = "setting"
 
@@ -479,6 +480,48 @@ class DesiredGenericResource:
                 meta=validate_metadata(raw["meta"], path=path),
                 api_payload=payload,
             )
+        if kind == ResourceKind.QUIC_PASSTHROUGH_HOST:
+            missing = [name for name in ("server_name", "target", "target_port") if name not in raw]
+            if missing:
+                raise ValidationError(f"{path} missing required keys: {', '.join(missing)}")
+            server_name = canonicalize_domain(raw["server_name"], path=f"{path}.server_name")
+            if server_name.startswith("*."):
+                raise ValidationError(f"{path}.server_name must be an exact hostname")
+            target_kind = str(raw.get("target_kind", "docker")).strip().lower()
+            if target_kind not in {"ip", "dns", "docker"}:
+                raise ValidationError(f"{path}.target_kind must be ip, dns, or docker")
+            alpn = raw.get("alpn", "h3")
+            if alpn != "h3":
+                raise ValidationError(f"{path}.alpn must be h3")
+            idle_timeout = raw.get("idle_timeout_seconds", 1800)
+            if isinstance(idle_timeout, bool) or not isinstance(idle_timeout, int):
+                raise ValidationError(f"{path}.idle_timeout_seconds must be an integer")
+            if not 5 <= idle_timeout <= 86400:
+                raise ValidationError(f"{path}.idle_timeout_seconds must be between 5 and 86400")
+            listen_address = raw.get("listen_address", "0.0.0.0")
+            if not isinstance(listen_address, str) or not listen_address.strip():
+                raise ValidationError(f"{path}.listen_address must be a non-empty string")
+            payload = dict(api_payload)
+            payload.update(
+                {
+                    "listen_address": listen_address.strip(),
+                    "incoming_port": validate_port(raw.get("incoming_port", 443), path=f"{path}.incoming_port"),
+                    "server_name": server_name,
+                    "alpn": alpn,
+                    "target_kind": target_kind,
+                    "target": validate_forward_host(raw["target"], path=f"{path}.target"),
+                    "target_port": validate_port(raw["target_port"], path=f"{path}.target_port"),
+                    "idle_timeout_seconds": idle_timeout,
+                    "enabled": validate_toggle(raw.get("enabled", 1), path=f"{path}.enabled"),
+                }
+            )
+            return cls(
+                kind=kind,
+                natural_key=server_name,
+                name=server_name,
+                meta=validate_metadata(raw["meta"], path=path),
+                api_payload=payload,
+            )
         if kind == ResourceKind.USER:
             if "email" not in raw:
                 raise ValidationError(f"{path} missing required keys: email")
@@ -710,6 +753,16 @@ class ExistingResource:
                 name=str(natural_key),
                 identity=identity_from_meta(item.get("meta")),
             )
+        if kind == ResourceKind.QUIC_PASSTHROUGH_HOST:
+            server_name = canonicalize_domain(item.get("server_name"), path="quic_passthrough_host.server_name")
+            return cls(
+                kind=kind,
+                id=_raw_id(item),
+                raw=item,
+                natural_key=server_name,
+                name=server_name,
+                identity=identity_from_meta(item.get("meta")),
+            )
         name = str(item.get("name") or item.get("email") or f"{kind.value}-{_raw_id(item)}")
         return cls(
             kind=kind,
@@ -756,6 +809,7 @@ class DesiredState:
     redirection_hosts: tuple[DesiredGenericResource, ...] = ()
     dead_hosts: tuple[DesiredGenericResource, ...] = ()
     streams: tuple[DesiredGenericResource, ...] = ()
+    quic_passthrough_hosts: tuple[DesiredGenericResource, ...] = ()
     users: tuple[DesiredGenericResource, ...] = ()
     settings: tuple[DesiredGenericResource, ...] = ()
     dns_records: tuple[DesiredDnsRecord, ...] = ()
@@ -774,6 +828,7 @@ class DesiredState:
             *self.redirection_hosts,
             *self.dead_hosts,
             *self.streams,
+            *self.quic_passthrough_hosts,
             *self.users,
             *self.settings,
             *self.proxy_hosts,
@@ -792,6 +847,8 @@ class DesiredState:
             return self.dead_hosts
         if kind == ResourceKind.STREAM:
             return self.streams
+        if kind == ResourceKind.QUIC_PASSTHROUGH_HOST:
+            return self.quic_passthrough_hosts
         if kind == ResourceKind.USER:
             return self.users
         if kind == ResourceKind.SETTING:
@@ -818,6 +875,7 @@ class ExistingState:
     redirection_hosts: tuple[ExistingResource, ...] = ()
     dead_hosts: tuple[ExistingResource, ...] = ()
     streams: tuple[ExistingResource, ...] = ()
+    quic_passthrough_hosts: tuple[ExistingResource, ...] = ()
     users: tuple[ExistingResource, ...] = ()
     settings: tuple[ExistingResource, ...] = ()
 
@@ -828,6 +886,7 @@ class ExistingState:
             *self.redirection_hosts,
             *self.dead_hosts,
             *self.streams,
+            *self.quic_passthrough_hosts,
             *self.users,
             *self.settings,
             *self.proxy_hosts,
@@ -846,6 +905,8 @@ class ExistingState:
             return self.dead_hosts
         if kind == ResourceKind.STREAM:
             return self.streams
+        if kind == ResourceKind.QUIC_PASSTHROUGH_HOST:
+            return self.quic_passthrough_hosts
         if kind == ResourceKind.USER:
             return self.users
         if kind == ResourceKind.SETTING:

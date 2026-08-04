@@ -1,0 +1,21 @@
+schema_version: "0.2.0"
+kind: "adr"
+id: "adr:1016"
+number: 1016
+slug: "capability-gated-portwyrm-quic-resources"
+title: "Capability-gated Portwyrm QUIC resources"
+status: "accepted"
+origin: "repo-local"
+decision_date: null
+tags: []
+summary: "Context: hostname-routed QUIC passthrough is a Portwyrm-native resource and cannot be inferred from Nginx Proxy Manager stream endpoints. Decision: Wyrmctl validates schema v3 quicPassthroughHosts, authenticates capability discovery, requires supported=true and tls_termination=false, and fails closed for unsupported or ambiguous providers. Apply consumes the reviewed PlanArtifact without re-planning. Consequences: Portwyrm routes remain owner-scoped and NPM profiles cannot silently misapply them."
+supersedes: []
+superseded_by: []
+status_notes:
+  -
+    status: "accepted"
+    note: "Accepted with the schema v3 and provider capability implementation."
+    at: "2026-08-04T03:43:21Z"
+references: []
+body: |-
+  Context: hostname-routed QUIC passthrough is a Portwyrm-native resource and cannot be inferred from Nginx Proxy Manager stream endpoints. Decision: Wyrmctl validates schema v3 quicPassthroughHosts, authenticates capability discovery, requires supported=true and tls_termination=false, and fails closed for unsupported or ambiguous providers. Apply consumes the reviewed PlanArtifact without re-planning. Consequences: Portwyrm routes remain owner-scoped and NPM profiles cannot silently misapply them.

@@ -1,6 +1,6 @@
 [project]
 name = "wyrmctl-route53"
-version = "0.4.0"
+version = "0.4.1"
 description = "AWS Route 53 DNS provider extension for wyrmctl."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"

@@ -1161,7 +1161,7 @@ wheels = [
 
 [[package]]
 name = "wyrmctl"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "packages/wyrmctl" }
 dependencies = [
     { name = "pyyaml" },
@@ -1185,7 +1185,7 @@ provides-extras = ["signing"]
 
 [[package]]
 name = "wyrmctl-cloudflare"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "packages/wyrmctl-cloudflare" }
 dependencies = [
     { name = "requests" },
@@ -1200,7 +1200,7 @@ requires-dist = [
 
 [[package]]
 name = "wyrmctl-digitalocean"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "packages/wyrmctl-digitalocean" }
 dependencies = [
     { name = "requests" },
@@ -1215,7 +1215,7 @@ requires-dist = [
 
 [[package]]
 name = "wyrmctl-godaddy"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "packages/wyrmctl-godaddy" }
 dependencies = [
     { name = "requests" },
@@ -1230,7 +1230,7 @@ requires-dist = [
 
 [[package]]
 name = "wyrmctl-namecheap"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "packages/wyrmctl-namecheap" }
 dependencies = [
     { name = "requests" },
@@ -1245,7 +1245,7 @@ requires-dist = [
 
 [[package]]
 name = "wyrmctl-route53"
-version = "0.4.0"
+version = "0.4.1"
 source = { editable = "packages/wyrmctl-route53" }
 dependencies = [
     { name = "boto3" },
@@ -1260,7 +1260,7 @@ requires-dist = [
 
 [[package]]
 name = "wyrmctl-workspace"
-version = "0.4.0"
+version = "0.4.1"
 source = { virtual = "." }
 
 [package.dev-dependencies]

@@ -37,6 +37,7 @@ _V3_KEYS = {
     "redirectionHosts": "redirection_hosts",
     "deadHosts": "dead_hosts",
     "streams": "streams",
+    "quicPassthroughHosts": "quic_passthrough_hosts",
     "users": "users",
     "settings": "settings",
     "dnsRecords": "dns_records",
@@ -62,6 +63,7 @@ def load_desired_state(path: str | Path, *, plugin_registry: PluginRegistry | No
     redirection_hosts: list[DesiredGenericResource] = []
     dead_hosts: list[DesiredGenericResource] = []
     streams: list[DesiredGenericResource] = []
+    quic_passthrough_hosts: list[DesiredGenericResource] = []
     users: list[DesiredGenericResource] = []
     settings: list[DesiredGenericResource] = []
     dns_records: list[DesiredDnsRecord] = []
@@ -93,6 +95,14 @@ def load_desired_state(path: str | Path, *, plugin_registry: PluginRegistry | No
             streams.append(
                 DesiredGenericResource.from_mapping(ResourceKind.STREAM, item, path=f"{file_path}.streams[{index}]")
             )
+        for index, item in enumerate(doc.get("quic_passthrough_hosts") or []):
+            quic_passthrough_hosts.append(
+                DesiredGenericResource.from_mapping(
+                    ResourceKind.QUIC_PASSTHROUGH_HOST,
+                    item,
+                    path=f"{file_path}.quic_passthrough_hosts[{index}]",
+                )
+            )
         for index, item in enumerate(doc.get("users") or []):
             users.append(
                 DesiredGenericResource.from_mapping(ResourceKind.USER, item, path=f"{file_path}.users[{index}]")
@@ -110,6 +120,7 @@ def load_desired_state(path: str | Path, *, plugin_registry: PluginRegistry | No
                 redirection_hosts=redirection_hosts,
                 dead_hosts=dead_hosts,
                 streams=streams,
+                quic_passthrough_hosts=quic_passthrough_hosts,
                 users=users,
                 settings=settings,
             )
@@ -129,6 +140,7 @@ def load_desired_state(path: str | Path, *, plugin_registry: PluginRegistry | No
         redirection_hosts=tuple(redirection_hosts),
         dead_hosts=tuple(dead_hosts),
         streams=tuple(streams),
+        quic_passthrough_hosts=tuple(quic_passthrough_hosts),
         users=tuple(users),
         settings=tuple(settings),
         dns_records=tuple(dns_records),
@@ -184,6 +196,7 @@ def _validate_document_header(doc: dict[str, Any], *, path: str) -> None:
         "redirection_hosts",
         "dead_hosts",
         "streams",
+        "quic_passthrough_hosts",
         "users",
         "settings",
         "dns_records",
@@ -277,6 +290,7 @@ def _append_generic_resource(
     redirection_hosts: list[DesiredGenericResource],
     dead_hosts: list[DesiredGenericResource],
     streams: list[DesiredGenericResource],
+    quic_passthrough_hosts: list[DesiredGenericResource],
     users: list[DesiredGenericResource],
     settings: list[DesiredGenericResource],
 ) -> None:
@@ -286,6 +300,8 @@ def _append_generic_resource(
         dead_hosts.append(resource)
     elif resource.kind == ResourceKind.STREAM:
         streams.append(resource)
+    elif resource.kind == ResourceKind.QUIC_PASSTHROUGH_HOST:
+        quic_passthrough_hosts.append(resource)
     elif resource.kind == ResourceKind.USER:
         users.append(resource)
     elif resource.kind == ResourceKind.SETTING:

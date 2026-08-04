@@ -4,7 +4,7 @@ DesiredState v3 is the writable contract. It requires `apiVersion:
 npmctl.com/v1`, `kind: DesiredState`, `schemaVersion: 3`, `metadata`, and
 `spec`. Resource collections in `spec` use camel case: `certificates`,
 `accessLists`, `proxyHosts`, `redirectionHosts`, `deadHosts`, `streams`,
-`users`, `settings`, `pluginResources`, and `externalCertificates`.
+`users`, `settings`, `pluginResources`, `externalCertificates`, and `quicPassthroughHosts`.
 
 ```yaml
 ---
@@ -80,3 +80,27 @@ externalCertificates:
     domain_names: [example.com]
     meta: {managed_by: npmctl, owner: workload-a, resource_id: cert.example}
 ```
+
+## QUIC passthrough hosts
+
+`quicPassthroughHosts` is a Portwyrm-native schema v3 resource. Before planning it, Wyrmctl authenticates to `/v2/capabilities` and fails closed unless the server explicitly reports hostname-routed QUIC passthrough with `tls_termination: false`. Nginx Proxy Manager profiles cannot apply this resource.
+
+```yaml
+spec:
+  quicPassthroughHosts:
+    - server_name: video.example.com
+      listen_address: 0.0.0.0
+      incoming_port: 443
+      alpn: h3
+      target_kind: docker
+      target: video-backend
+      target_port: 4443
+      idle_timeout_seconds: 1800
+      enabled: true
+      meta:
+        managed_by: wyrmctl
+        owner: video-demo
+        resource_id: quic.video-demo
+```
+
+The reviewed plan artifact preserves this exact resource and is the only accepted apply input. Portwyrm forwards encrypted QUIC; the target owns TLS, certificates, HTTP/3, and WebTransport.

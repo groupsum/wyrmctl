@@ -15,6 +15,7 @@ from wyrmctl.models import (
     PlanAction,
     ResourceKind,
 )
+from wyrmctl.profile import current_profile
 from wyrmctl.schema import Capabilities
 
 _PROXY_HOST_DEFAULTS: dict[str, Any] = {
@@ -531,9 +532,15 @@ def _detect_existing_integrity_conflicts(existing: ExistingState, conflicts: lis
 
 
 def _capability_conflict(resource: DesiredResource, operation: str, *, existing_id: int | None = None) -> PlanConflict:
+    message = f"NPM API does not expose {operation} for {resource.kind.value}"
+    if resource.kind == ResourceKind.QUIC_PASSTHROUGH_HOST and current_profile().name == "npmctl":
+        message = (
+            "Nginx Proxy Manager cannot manage hostname-routed QUIC passthrough; "
+            "use Portwyrm with wyrmctl for this resource"
+        )
     return PlanConflict(
         code=f"missing_{operation}_capability",
-        message=f"NPM API does not expose {operation} for {resource.kind.value}",
+        message=message,
         kind=resource.kind,
         owner=resource.identity.owner,
         resource_id=resource.identity.resource_id,

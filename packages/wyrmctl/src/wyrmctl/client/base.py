@@ -54,6 +54,13 @@ class NpmClient:
 
     def capabilities(self) -> Capabilities:
         caps = Capabilities.from_openapi(self.openapi_schema())
+        if caps.quic_passthrough_hosts.list:
+            native = self._request("get", "/v2/capabilities", authenticated=True)
+            quic = native.get("quic_sni_passthrough") if isinstance(native, dict) else None
+            if not isinstance(quic, dict) or quic.get("supported") is not True:
+                raise CapabilityError("provider advertises QUIC routes without supported QUIC SNI passthrough")
+            if quic.get("tls_termination") is not False:
+                raise CapabilityError("QUIC passthrough provider must preserve backend TLS termination")
         if caps.schema_version == "2.10.4":
             return _with_npm_2104_compatibility(caps)
         return caps
@@ -73,6 +80,7 @@ class NpmClient:
             ResourceKind.REDIRECTION_HOST,
             ResourceKind.DEAD_HOST,
             ResourceKind.STREAM,
+            ResourceKind.QUIC_PASSTHROUGH_HOST,
             ResourceKind.USER,
             ResourceKind.SETTING,
         }:
@@ -87,6 +95,9 @@ class NpmClient:
         redirection_hosts = self.list_resource(ResourceKind.REDIRECTION_HOST) if caps.redirection_hosts.list else ()
         dead_hosts = self.list_resource(ResourceKind.DEAD_HOST) if caps.dead_hosts.list else ()
         streams = self.list_resource(ResourceKind.STREAM) if caps.streams.list else ()
+        quic_passthrough_hosts = (
+            self.list_resource(ResourceKind.QUIC_PASSTHROUGH_HOST) if caps.quic_passthrough_hosts.list else ()
+        )
         users = self._optional_list_resource(ResourceKind.USER) if caps.users.list else ()
         settings = self._optional_list_resource(ResourceKind.SETTING) if caps.settings.list else ()
         return ExistingState(
@@ -96,6 +107,7 @@ class NpmClient:
             redirection_hosts=redirection_hosts,
             dead_hosts=dead_hosts,
             streams=streams,
+            quic_passthrough_hosts=quic_passthrough_hosts,
             users=users,
             settings=settings,
         )
@@ -241,6 +253,7 @@ def _parse_created(kind: ResourceKind, data: Any) -> ExistingResource:
         ResourceKind.REDIRECTION_HOST,
         ResourceKind.DEAD_HOST,
         ResourceKind.STREAM,
+        ResourceKind.QUIC_PASSTHROUGH_HOST,
         ResourceKind.USER,
         ResourceKind.SETTING,
     }:
@@ -269,6 +282,7 @@ def _with_npm_2104_compatibility(caps: Capabilities) -> Capabilities:
         redirection_hosts=caps.redirection_hosts,
         dead_hosts=caps.dead_hosts,
         streams=caps.streams,
+        quic_passthrough_hosts=caps.quic_passthrough_hosts,
         users=caps.users,
         settings=caps.settings,
         audit_log=caps.audit_log,

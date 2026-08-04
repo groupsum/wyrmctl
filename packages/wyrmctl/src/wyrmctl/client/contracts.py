@@ -25,6 +25,9 @@ CONTRACTS: dict[ResourceKind, ResourceContract] = {
     ResourceKind.REDIRECTION_HOST: ResourceContract(ResourceKind.REDIRECTION_HOST, "/nginx/redirection-hosts"),
     ResourceKind.DEAD_HOST: ResourceContract(ResourceKind.DEAD_HOST, "/nginx/dead-hosts"),
     ResourceKind.STREAM: ResourceContract(ResourceKind.STREAM, "/nginx/streams"),
+    ResourceKind.QUIC_PASSTHROUGH_HOST: ResourceContract(
+        ResourceKind.QUIC_PASSTHROUGH_HOST, "/v2/quic-passthrough-hosts"
+    ),
     ResourceKind.USER: ResourceContract(ResourceKind.USER, "/users"),
     ResourceKind.SETTING: ResourceContract(ResourceKind.SETTING, "/settings"),
 }

@@ -236,6 +236,7 @@ def _add_reconcile_args(parser: argparse.ArgumentParser, *, desired_required: bo
             "redirection_hosts",
             "dead_hosts",
             "streams",
+            "quic_passthrough_hosts",
             "users",
             "settings",
         ),
@@ -659,6 +660,7 @@ def _dns_live_fingerprint(dns_plan: Any, providers: Any) -> str:
         resources.append({"provider": provider_name, "zone": zone, "records": records})
     return semantic_digest(resources)
 
+
 def _schema_command(args: argparse.Namespace, client: Any | None) -> int:
     from wyrmctl.schema import Capabilities, load_openapi_schema
 
@@ -759,6 +761,7 @@ def _desired_summary(desired: Any) -> dict[str, Any]:
         "redirection_hosts": len(desired.redirection_hosts),
         "dead_hosts": len(desired.dead_hosts),
         "streams": len(desired.streams),
+        "quic_passthrough_hosts": len(desired.quic_passthrough_hosts),
         "users": len(desired.users),
         "settings": len(desired.settings),
         "dns_records": len(desired.dns_records),
@@ -808,6 +811,7 @@ _RESOURCE_KIND_ALIASES: dict[str, ResourceKind] = {
     "redirection_hosts": ResourceKind.REDIRECTION_HOST,
     "dead_hosts": ResourceKind.DEAD_HOST,
     "streams": ResourceKind.STREAM,
+    "quic_passthrough_hosts": ResourceKind.QUIC_PASSTHROUGH_HOST,
     "users": ResourceKind.USER,
     "settings": ResourceKind.SETTING,
 }
