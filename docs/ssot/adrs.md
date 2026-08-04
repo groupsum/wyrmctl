@@ -1,6 +1,6 @@
 # ADRs
 
-Generated entries: 31
+Generated entries: 32
 
 | id | number | title | status |
 | --- | --- | --- | --- |
@@ -35,3 +35,4 @@ Generated entries: 31
 | adr:1013 | 1013 | Minimize redact and retain sensitive artifact data by policy | accepted |
 | adr:1014 | 1014 | Use leases idempotency keys and request correlation for migration execution | accepted |
 | adr:1015 | 1015 | Require plugins to participate in contract compatibility and migration registration | accepted |
+| adr:1016 | 1016 | Capability-gated Portwyrm QUIC resources | accepted |

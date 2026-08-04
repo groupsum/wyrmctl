@@ -1,8 +1,8 @@
 # SSOT index
 
-Features: 214
+Features: 215
 Claims: 18
-Tests: 160
+Tests: 161
 Evidence: 20
 Profiles: 1
 Boundaries: 5

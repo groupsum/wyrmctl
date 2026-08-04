@@ -1,6 +1,6 @@
 # Features
 
-Generated entries: 214
+Generated entries: 215
 
 | id | title | implementation_status | horizon | target_tier | claims | tests |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -205,6 +205,7 @@ Generated entries: 214
 | feat:repository-manifest | Versioned repository manifest | implemented | backlog |  | clm:versioning-migration-contracts | tst:repository-manifest-validation |
 | feat:resource-audit-log | Audit log resource reporting | implemented | explicit | T2 | clm:expanded-feature-scope-planning, clm:resource-expanded-certification | tst:expanded-feature-scope-planning, tst:resource-expanded-certification |
 | feat:resource-dead-hosts | Dead host resource support | implemented | explicit | T2 | clm:expanded-feature-scope-planning, clm:resource-expanded-certification | tst:expanded-feature-scope-planning, tst:resource-expanded-certification |
+| feat:resource-quic-passthrough-hosts | QUIC passthrough host resources | implemented | current | T2 | clm:expanded-feature-scope-planning | tst:expanded-feature-scope-planning, tst:quic-passthrough-capability-artifact |
 | feat:resource-redirection-hosts | Redirection host resource support | implemented | explicit | T2 | clm:expanded-feature-scope-planning, clm:resource-expanded-certification | tst:expanded-feature-scope-planning, tst:resource-expanded-certification |
 | feat:resource-settings | Settings resource support | implemented | explicit | T2 | clm:expanded-feature-scope-planning, clm:resource-expanded-certification | tst:expanded-feature-scope-planning, tst:resource-expanded-certification |
 | feat:resource-streams | Stream resource support | implemented | explicit | T2 | clm:expanded-feature-scope-planning, clm:resource-expanded-certification | tst:expanded-feature-scope-planning, tst:resource-expanded-certification |

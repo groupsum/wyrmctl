@@ -1,6 +1,6 @@
 # Specs
 
-Generated entries: 36
+Generated entries: 37
 
 | id | number | title | status | kind |
 | --- | --- | --- | --- | --- |
@@ -40,3 +40,4 @@ Generated entries: 36
 | spc:1018 | 1018 | Migration leases idempotency and provider correlation | in_review | normative |
 | spc:1019 | 1019 | Plugin contract and migration registration | in_review | normative |
 | spc:1020 | 1020 | Versioned CLI automation and error contract | in_review | normative |
+| spc:1021 | 1021 | QUIC passthrough desired-state resource | accepted | normative |
