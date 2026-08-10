@@ -125,6 +125,17 @@ class NpmClient:
         data = self._request("post", contract.collection_path, authenticated=True, json=dict(payload))
         return _parse_created(kind, data)
 
+    def request_certificate(self, payload: Mapping[str, Any]) -> ExistingResource:
+        """Request and issue an ACME certificate through a provider-native endpoint."""
+
+        data = self._request(
+            "post",
+            "/nginx/certificates/request",
+            authenticated=True,
+            json=dict(payload),
+        )
+        return _parse_created(ResourceKind.CERTIFICATE, data)
+
     def update_resource(
         self, kind: ResourceKind, resource_id: ResourceId, payload: Mapping[str, Any], *, method: str = "put"
     ) -> ExistingResource:

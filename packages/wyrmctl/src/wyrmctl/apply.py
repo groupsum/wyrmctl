@@ -88,7 +88,14 @@ class ApplyEngine:
         try:
             if isinstance(desired, DesiredCertificate):
                 issuance_key = self.issuance_guard.begin(desired)
-            created = self.client.create_resource(desired.kind, payload)
+            if (
+                isinstance(desired, DesiredCertificate)
+                and desired.certificate_type == "letsencrypt"
+                and self.capabilities.certificate_request
+            ):
+                created = self.client.request_certificate(payload)
+            else:
+                created = self.client.create_resource(desired.kind, payload)
         except CertificateApiError:
             if issuance_key is not None:
                 self.issuance_guard.fail(issuance_key, error_code="certificate_api_error")

@@ -51,6 +51,7 @@ class Capabilities:
     users: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     settings: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     audit_log: ResourceCapabilities = field(default_factory=ResourceCapabilities)
+    certificate_request: bool = False
     schema_version: str | None = None
 
     @classmethod
@@ -67,6 +68,7 @@ class Capabilities:
             users=empty,
             settings=empty,
             audit_log=empty,
+            certificate_request=False,
         )
 
     @classmethod
@@ -84,6 +86,7 @@ class Capabilities:
             users=cap,
             settings=cap,
             audit_log=read_only,
+            certificate_request=False,
             schema_version="test",
         )
 
@@ -110,6 +113,7 @@ class Capabilities:
             users=_detect(paths, "/users"),
             settings=_detect(paths, "/settings"),
             audit_log=_detect(paths, "/audit-log"),
+            certificate_request="post" in _methods(paths.get("/nginx/certificates/request", {})),
             schema_version=version,
         )
 
@@ -152,6 +156,7 @@ class Capabilities:
             "users": self.users.to_dict(),
             "settings": self.settings.to_dict(),
             "audit_log": self.audit_log.to_dict(),
+            "certificate_request": self.certificate_request,
         }
 
     @property

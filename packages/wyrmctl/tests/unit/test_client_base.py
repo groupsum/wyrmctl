@@ -113,6 +113,24 @@ def test_request_does_not_retry_non_get_mutations(monkeypatch) -> None:
     assert session.calls[0]["method"] == "POST"
 
 
+def test_request_certificate_uses_provider_acme_endpoint() -> None:
+    payload = {
+        "nice_name": "demo.example.com",
+        "domain_names": ["demo.example.com"],
+        "provider": "letsencrypt",
+        "meta": {"owner": "demo", "resource_id": "cert.demo"},
+    }
+    client, session = _client([FakeResponse(201, {"id": 2, **payload})])
+    client._token = "token-value"
+    client._expires = int(time.time()) + 3600
+
+    certificate = client.request_certificate(payload)
+
+    assert certificate.id == 2
+    assert session.calls[0]["url"].endswith("/nginx/certificates/request")
+    assert session.calls[0]["json"] == payload
+
+
 def test_refresh_uses_existing_token_without_recursive_refresh(monkeypatch) -> None:
     monkeypatch.setattr("wyrmctl.client.base.time.time", lambda: 1000)
     client, session = _client(

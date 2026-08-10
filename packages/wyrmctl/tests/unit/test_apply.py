@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from wyrmctl.apply import ApplyEngine
@@ -99,6 +101,11 @@ class RecordingClient:
         if kind == ResourceKind.ACCESS_LIST:
             return ExistingResource.from_access_list(raw)
         return ExistingResource.from_proxy_host(raw)
+
+    def request_certificate(self, payload: dict) -> ExistingResource:
+        self.events.append(("request", ResourceKind.CERTIFICATE, None, payload))
+        self.next_id += 1
+        return ExistingResource.from_certificate(dict(payload) | {"id": self.next_id})
 
     def update_resource(
         self, kind: ResourceKind, resource_id: int, payload: dict, *, method: str = "put"
@@ -310,6 +317,22 @@ def test_apply_certificate_mutations_use_issuance_guard() -> None:
 
     ApplyEngine(client=client, capabilities=Capabilities.full_for_tests(), issuance_guard=guard).apply(plan)
 
+    assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
+
+
+def test_apply_uses_provider_acme_request_endpoint_when_advertised() -> None:
+    client = RecordingClient()
+    guard = RecordingIssuanceGuard()
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.CREATE, ResourceKind.CERTIFICATE, desired=_cert()),),
+        conflicts=(),
+        existing_count=0,
+    )
+    capabilities = replace(Capabilities.full_for_tests(), certificate_request=True)
+
+    ApplyEngine(client=client, capabilities=capabilities, issuance_guard=guard).apply(plan)
+
+    assert client.events[0][0] == "request"
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
 
 
