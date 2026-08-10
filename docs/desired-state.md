@@ -43,9 +43,11 @@ Additional resource kinds use pass-through `api_payload` fields while keeping
 the same owner metadata contract. The following snippets are collection fields
 inside `spec`:
 
-For certificates, provider-specific `api_payload.meta` values are merged with
-the resource's outer `meta` object. The validated `managed_by`, `owner`, and
-`resource_id` identity always wins and is sent on create, request, and update.
+For certificates, provider-specific `api_payload.meta` remains the exact legacy
+NPM payload. When the provider advertises the native certificate-request
+capability, Wyrmctl merges the validated `managed_by`, `owner`, and `resource_id`
+identity into that request so Portwyrm can persist ownership without violating
+upstream NPM's narrower certificate metadata schema.
 
 ```yaml
 redirectionHosts:

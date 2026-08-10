@@ -93,8 +93,11 @@ class ApplyEngine:
                 and desired.certificate_type == "letsencrypt"
                 and self.capabilities.certificate_request
             ):
+                payload["meta"] = merge_managed_meta(payload.get("meta"), desired.meta)
                 created = self.client.request_certificate(payload)
             else:
+                if isinstance(desired, DesiredCertificate):
+                    payload = self._generic_certificate_payload(desired, payload)
                 created = self.client.create_resource(desired.kind, payload)
         except CertificateApiError:
             if issuance_key is not None:
@@ -180,6 +183,19 @@ class ApplyEngine:
             access_list_id = self._resolve_reference(desired.access_list_ref, ResourceKind.ACCESS_LIST)
             return desired.to_payload(certificate_id=certificate_id, access_list_id=access_list_id)
         return desired.to_payload()
+
+    @staticmethod
+    def _generic_certificate_payload(desired: DesiredCertificate, payload: dict[str, Any]) -> dict[str, Any]:
+        """Keep provider metadata but omit Portwyrm-only ownership keys for legacy NPM."""
+
+        generic = dict(payload)
+        if "meta" in desired.api_payload:
+            provider_meta = desired.api_payload.get("meta")
+            if isinstance(provider_meta, dict):
+                generic["meta"] = dict(provider_meta)
+            else:
+                generic.pop("meta", None)
+        return generic
 
     def _resolve_reference(self, ref: str | None, kind: ResourceKind) -> int | None:
         if ref is None:

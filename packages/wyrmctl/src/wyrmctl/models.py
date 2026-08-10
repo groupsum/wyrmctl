@@ -11,7 +11,6 @@ from typing import Any, ClassVar
 
 from wyrmctl.errors import ValidationError
 from wyrmctl.metadata import ManagedIdentity, identity_from_meta, validate_metadata
-from wyrmctl.metadata import merge_managed_meta
 from wyrmctl.profile import current_profile
 
 ResourceId = int | str
@@ -337,8 +336,8 @@ class DesiredCertificate:
     """Desired SSL certificate declaration.
 
     NPM certificate payloads vary by install/version and DNS provider. `api_payload`
-    is therefore an explicit pass-through contract validated for shape and merged
-    with ownership metadata, name, and domains.
+    is therefore an explicit pass-through contract validated for shape and combined
+    with the declared name and domains. Apply-time capabilities govern ownership metadata.
     """
 
     kind: ClassVar[ResourceKind] = ResourceKind.CERTIFICATE
@@ -379,7 +378,7 @@ class DesiredCertificate:
         payload.setdefault("nice_name", self.name)
         payload.setdefault("provider", self.certificate_type)
         payload["domain_names"] = list(self.domain_names)
-        payload["meta"] = merge_managed_meta(payload.get("meta"), self.meta)
+        payload.setdefault("meta", self.meta)
         return payload
 
     def comparable_payload(self) -> dict[str, Any]:

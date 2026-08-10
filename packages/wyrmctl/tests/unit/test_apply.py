@@ -320,6 +320,41 @@ def test_apply_certificate_mutations_use_issuance_guard() -> None:
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
 
 
+def test_apply_generic_certificate_keeps_only_provider_metadata() -> None:
+    client = RecordingClient()
+    desired = DesiredCertificate.from_mapping(
+        {
+            "name": "legacy-cert",
+            "domain_names": ["legacy.example.com"],
+            "meta": _meta("cert.legacy"),
+            "api_payload": {"provider": "other", "meta": {"certificate": "pem"}},
+        },
+        path="cert",
+    )
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.CREATE, ResourceKind.CERTIFICATE, desired=desired),),
+        conflicts=(),
+        existing_count=0,
+    )
+
+    ApplyEngine(
+        client=client,
+        capabilities=replace(Capabilities.full_for_tests(), certificate_request=False),
+        issuance_guard=RecordingIssuanceGuard(),
+    ).apply(plan)
+
+    assert client.events[0][0] == "create"
+    assert client.events[0][3]["meta"] == {"certificate": "pem"}
+
+
+def test_apply_generic_certificate_omits_invalid_provider_metadata() -> None:
+    desired = _cert()
+    payload = desired.to_payload()
+    desired.api_payload["meta"] = "unsupported"
+
+    assert ApplyEngine._generic_certificate_payload(desired, payload).get("meta") is None
+
+
 def test_apply_uses_provider_acme_request_endpoint_when_advertised() -> None:
     client = RecordingClient()
     guard = RecordingIssuanceGuard()
@@ -333,6 +368,7 @@ def test_apply_uses_provider_acme_request_endpoint_when_advertised() -> None:
     ApplyEngine(client=client, capabilities=capabilities, issuance_guard=guard).apply(plan)
 
     assert client.events[0][0] == "request"
+    assert client.events[0][3]["meta"] == _meta("cert.one")
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
 
 
