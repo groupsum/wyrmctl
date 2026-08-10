@@ -1,6 +1,6 @@
 [project]
 name = "wyrmctl-workspace"
-version = "0.4.1"
+version = "0.4.2"
 description = "Workspace root for wyrmctl, an owner-scoped Nginx Proxy Manager controller."
 readme = "README.md"
 requires-python = ">=3.10"
