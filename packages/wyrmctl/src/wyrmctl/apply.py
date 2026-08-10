@@ -95,6 +95,21 @@ class ApplyEngine:
             ):
                 payload["meta"] = merge_managed_meta(payload.get("meta"), desired.meta)
                 created = self.client.request_certificate(payload)
+                if created.identity != desired.identity:
+                    certificate_capabilities = self.capabilities.for_kind(ResourceKind.CERTIFICATE)
+                    if not certificate_capabilities.update:
+                        raise ValidationError(
+                            "certificate request did not persist managed identity and the provider "
+                            "does not advertise certificate update support"
+                        )
+                    identity_payload = _updateable_existing_payload(created)
+                    identity_payload["meta"] = merge_managed_meta(created.raw.get("meta"), desired.meta)
+                    created = self.client.update_resource(
+                        ResourceKind.CERTIFICATE,
+                        created.id,
+                        identity_payload,
+                        method=certificate_capabilities.update_method or "put",
+                    )
             else:
                 if isinstance(desired, DesiredCertificate):
                     payload = self._generic_certificate_payload(desired, payload)

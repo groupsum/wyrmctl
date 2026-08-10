@@ -15,3 +15,5 @@ Issuance safety is local and fail-closed:
 - repeated issuance attempts for the same provider and normalized domain set are deduplicated while one is in flight
 - failed issuance attempts enter a cooldown window before npmctl will try again
 - Certbot lock contention is classified as retryable, while stale `No order for ID ...` failures are surfaced as cleanup-required certificate errors
+- after native certificate issuance, Wyrmctl verifies that managed identity was returned and immediately persists it on that newly created certificate when the request endpoint omits it
+- if the provider cannot persist that identity, apply fails instead of reporting an unmanaged certificate as a successful create

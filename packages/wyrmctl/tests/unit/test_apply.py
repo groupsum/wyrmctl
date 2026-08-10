@@ -372,6 +372,63 @@ def test_apply_uses_provider_acme_request_endpoint_when_advertised() -> None:
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
 
 
+def test_apply_persists_identity_when_certificate_request_drops_metadata() -> None:
+    class MetadataDroppingClient(RecordingClient):
+        def request_certificate(self, payload: dict) -> ExistingResource:
+            self.events.append(("request", ResourceKind.CERTIFICATE, None, payload))
+            self.next_id += 1
+            created = dict(payload) | {"id": self.next_id}
+            created["meta"] = {"letsencrypt_email": "ops@example.com"}
+            return ExistingResource.from_certificate(created)
+
+    client = MetadataDroppingClient()
+    guard = RecordingIssuanceGuard()
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.CREATE, ResourceKind.CERTIFICATE, desired=_cert()),),
+        conflicts=(),
+        existing_count=0,
+    )
+    capabilities = replace(Capabilities.full_for_tests(), certificate_request=True)
+
+    result = ApplyEngine(client=client, capabilities=capabilities, issuance_guard=guard).apply(plan)
+
+    assert [event[0] for event in client.events] == ["request", "update:put"]
+    assert client.events[1][2] == result.mutations[0]["id"]
+    assert client.events[1][3]["meta"] == {
+        "letsencrypt_email": "ops@example.com",
+        **_meta("cert.one"),
+    }
+    assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
+
+
+def test_apply_fails_closed_when_issued_certificate_identity_cannot_be_persisted() -> None:
+    class MetadataDroppingClient(RecordingClient):
+        def request_certificate(self, payload: dict) -> ExistingResource:
+            self.events.append(("request", ResourceKind.CERTIFICATE, None, payload))
+            self.next_id += 1
+            created = dict(payload) | {"id": self.next_id, "meta": {}}
+            return ExistingResource.from_certificate(created)
+
+    client = MetadataDroppingClient()
+    guard = RecordingIssuanceGuard()
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.CREATE, ResourceKind.CERTIFICATE, desired=_cert()),),
+        conflicts=(),
+        existing_count=0,
+    )
+    capabilities = replace(
+        Capabilities.full_for_tests(),
+        certificate_request=True,
+        certificates=replace(Capabilities.full_for_tests().certificates, update=False, update_method=None),
+    )
+
+    with pytest.raises(ValidationError, match="did not persist managed identity"):
+        ApplyEngine(client=client, capabilities=capabilities, issuance_guard=guard).apply(plan)
+
+    assert [event[0] for event in client.events] == ["request"]
+    assert guard.events == [("begin", "cert.one"), ("fail", "cert.one:certificate_create_failed")]
+
+
 def test_apply_certificate_update_uses_issuance_guard_on_success() -> None:
     client = RecordingClient()
     guard = RecordingIssuanceGuard()

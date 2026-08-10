@@ -26,3 +26,7 @@ Each workflow uses concurrency groups to avoid overlapping mutable runs.
 The `Release` workflow can publish Python distributions after the required
 release gates pass. Publication happens before the GitHub Release step so a
 package publish failure does not leave a GitHub-only release artifact behind.
+
+The core `wyrmctl` distribution is the default PyPI publication scope. Optional
+provider distributions remain attached to the GitHub Release and are included
+in the PyPI upload only when `publish_provider_packages` is explicitly enabled.

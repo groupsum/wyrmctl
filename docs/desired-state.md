@@ -47,7 +47,10 @@ For certificates, provider-specific `api_payload.meta` remains the exact legacy
 NPM payload. When the provider advertises the native certificate-request
 capability, Wyrmctl merges the validated `managed_by`, `owner`, and `resource_id`
 identity into that request so Portwyrm can persist ownership without violating
-upstream NPM's narrower certificate metadata schema.
+upstream NPM's narrower certificate metadata schema. If the native issuance
+response omits that identity, Wyrmctl writes it back to the same newly issued
+certificate before reporting the create as successful; it never uses this path
+to claim a pre-existing certificate.
 
 ```yaml
 redirectionHosts:
