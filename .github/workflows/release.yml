@@ -216,8 +216,14 @@ jobs:
                 --json databaseId,headSha,status,conclusion,createdAt --limit 50 \
                 --jq '[.[] | select(.headSha == env.TARGET_SHA and .createdAt >= "'"$started"'")] | sort_by(.createdAt) | last | .databaseId // ""')"
               if [[ -n "$run_id" ]]; then
-                status="$(gh run view "$run_id" --repo "$REPO" --json status --jq .status)"
-                conclusion="$(gh run view "$run_id" --repo "$REPO" --json conclusion --jq '.conclusion // ""')"
+                if ! status="$(gh run view "$run_id" --repo "$REPO" --json status --jq .status 2>/dev/null)"; then
+                  sleep 5
+                  continue
+                fi
+                if ! conclusion="$(gh run view "$run_id" --repo "$REPO" --json conclusion --jq '.conclusion // ""' 2>/dev/null)"; then
+                  sleep 5
+                  continue
+                fi
                 if [[ "$status" == "completed" ]]; then
                   if [[ "$conclusion" == "success" ]]; then
                     echo "$label succeeded: $run_id"

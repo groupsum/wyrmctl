@@ -51,6 +51,9 @@ def test_workflow_trigger_and_gate_semantics() -> None:
     assert "docs-ssot.yml" in gate_run
     assert "python-matrix.yml" in gate_run
     assert "live-npm-gate.yml" in gate_run
+    assert "if ! status=" in gate_run
+    assert "if ! conclusion=" in gate_run
+    assert "continue" in gate_run
     prepare_steps = release["jobs"]["prepare"]["steps"]
     bump_script = next(step["run"] for step in prepare_steps if step.get("name") == "Bump release metadata")
     commit_script = next(step["run"] for step in prepare_steps if step.get("name") == "Commit release metadata")
