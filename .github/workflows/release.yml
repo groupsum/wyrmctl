@@ -212,9 +212,13 @@ jobs:
             local run_id=""
 
             while (( SECONDS < deadline )); do
-              run_id="$(gh run list --repo "$REPO" --workflow "$workflow" \
+              if ! run_id="$(gh run list --repo "$REPO" --workflow "$workflow" \
                 --json databaseId,headSha,status,conclusion,createdAt --limit 50 \
-                --jq '[.[] | select(.headSha == env.TARGET_SHA and .createdAt >= "'"$started"'")] | sort_by(.createdAt) | last | .databaseId // ""')"
+                --jq '[.[] | select(.headSha == env.TARGET_SHA and .createdAt >= "'"$started"'")] | sort_by(.createdAt) | last | .databaseId // ""' \
+                2>/dev/null)"; then
+                sleep 5
+                continue
+              fi
               if [[ -n "$run_id" ]]; then
                 if ! status="$(gh run view "$run_id" --repo "$REPO" --json status --jq .status 2>/dev/null)"; then
                   sleep 5
