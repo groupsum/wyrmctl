@@ -1,6 +1,6 @@
 [project]
 name = "wyrmctl-namecheap"
-version = "0.4.3"
+version = "0.4.4"
 description = "Namecheap DNS provider extension for wyrmctl."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
