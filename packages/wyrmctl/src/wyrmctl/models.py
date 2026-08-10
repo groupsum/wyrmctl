@@ -11,6 +11,7 @@ from typing import Any, ClassVar
 
 from wyrmctl.errors import ValidationError
 from wyrmctl.metadata import ManagedIdentity, identity_from_meta, validate_metadata
+from wyrmctl.metadata import merge_managed_meta
 from wyrmctl.profile import current_profile
 
 ResourceId = int | str
@@ -378,7 +379,7 @@ class DesiredCertificate:
         payload.setdefault("nice_name", self.name)
         payload.setdefault("provider", self.certificate_type)
         payload["domain_names"] = list(self.domain_names)
-        payload.setdefault("meta", dict(self.meta))
+        payload["meta"] = merge_managed_meta(payload.get("meta"), self.meta)
         return payload
 
     def comparable_payload(self) -> dict[str, Any]:

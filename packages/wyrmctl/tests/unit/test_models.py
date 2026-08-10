@@ -66,12 +66,19 @@ def test_certificate_and_acl_models_accept_api_payload() -> None:
             "name": "wildcard",
             "domain_names": ["*.example.com", "example.com"],
             "meta": META,
-            "api_payload": {"provider": "letsencrypt"},
+            "api_payload": {
+                "provider": "letsencrypt",
+                "meta": {
+                    "letsencrypt_email": "admin@example.test",
+                    "dns_challenge": False,
+                },
+            },
         },
         path="cert",
     )
     acl = DesiredAccessList.from_mapping({"name": "admins", "meta": META, "api_payload": {"items": []}}, path="acl")
     assert cert.to_payload()["provider"] == "letsencrypt"
+    assert cert.to_payload()["meta"] == {**META, "letsencrypt_email": "admin@example.test", "dns_challenge": False}
     assert acl.to_payload()["items"] == []
 
 
