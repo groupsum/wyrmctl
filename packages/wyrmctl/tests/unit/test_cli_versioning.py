@@ -7,7 +7,6 @@ import yaml
 
 from wyrmctl.artifacts import PlanArtifact, write_artifact
 from wyrmctl.cli import _apply_plan_artifact, _dns_live_fingerprint, _write_plan_artifact, main
-from wyrmctl.contracts import semantic_digest
 from wyrmctl.models import DesiredState, ExistingState
 from wyrmctl.planner import Plan
 from wyrmctl.profile import NPMCTL_PROFILE
@@ -130,9 +129,6 @@ def test_write_and_apply_empty_plan_artifact(tmp_path: Path, capsys, monkeypatch
     )
     _write_plan_artifact(args, plan, DesiredState(schema_version=3), ExistingState(), capabilities)
     assert out.exists()
-    document = yaml.safe_load(out.read_text(encoding="utf-8"))
-    document["spec"]["inputs"]["liveStateFingerprint"] = semantic_digest([])
-    write_artifact(out, document)
     apply_args = argparse.Namespace(
         artifact=str(out),
         repository="org/repo",

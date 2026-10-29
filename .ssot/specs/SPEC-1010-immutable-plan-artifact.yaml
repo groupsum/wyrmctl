@@ -8,7 +8,7 @@ status: "accepted"
 origin: "repo-local"
 decision_date: null
 tags: []
-summary: "A PlanArtifact SHALL identify repository, commit, owner, environment, contract versions, tool and provider versions, desired-state digests, live-state fingerprint, operations, conflicts, destructive effects, and expiry. Apply SHALL consume the reviewed artifact and reject digest mismatch, target mismatch, live-state staleness, or expiration."
+summary: "A PlanArtifact SHALL identify repository, commit, owner, environment, contract versions, tool and provider versions, desired-state digests, plan-scoped live-state fingerprint, operations, conflicts, destructive effects, and expiry. The fingerprint SHALL cover every live resource owned by an owner represented in the plan and every foreign or unmanaged resource capable of colliding with a planned natural key, proxy domain, compatible certificate domain set, or explicit certificate/access-list identifier. Apply SHALL consume the reviewed artifact and reject digest mismatch, target mismatch, scoped live-state staleness, or expiration. Unrelated live resources owned by owners absent from the plan SHALL NOT invalidate the artifact."
 supersedes: []
 superseded_by: []
 status_notes:
@@ -17,12 +17,16 @@ status_notes:
     note: "Proposed contract for npmctl versioning and migration work."
     status: "draft"
   -
-    status: "accepted"
-    note: "Implemented and covered by the npmctl 0.4 verification suite."
     at: "2026-07-14T03:26:16Z"
+    note: "Implemented and covered by the npmctl 0.4 verification suite."
+    status: "accepted"
+  -
+    status: "accepted"
+    note: "Scoped live-state concurrency to plan owners and collision-relevant resources so independent owners can apply concurrently while conflicts still fail closed."
+    at: "2026-10-29T01:04:44Z"
 references: []
 body: |-
-  A PlanArtifact SHALL identify repository, commit, owner, environment, contract versions, tool and provider versions, desired-state digests, live-state fingerprint, operations, conflicts, destructive effects, and expiry. Apply SHALL consume the reviewed artifact and reject digest mismatch, target mismatch, live-state staleness, or expiration.
+  A PlanArtifact SHALL identify repository, commit, owner, environment, contract versions, tool and provider versions, desired-state digests, plan-scoped live-state fingerprint, operations, conflicts, destructive effects, and expiry. The fingerprint SHALL cover every live resource owned by an owner represented in the plan and every foreign or unmanaged resource capable of colliding with a planned natural key, proxy domain, compatible certificate domain set, or explicit certificate/access-list identifier. Apply SHALL consume the reviewed artifact and reject digest mismatch, target mismatch, scoped live-state staleness, or expiration. Unrelated live resources owned by owners absent from the plan SHALL NOT invalidate the artifact.
 spec_kind: "normative"
 adr_ids:
   - "adr:1007"

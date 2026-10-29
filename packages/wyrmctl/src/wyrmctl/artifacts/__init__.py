@@ -2,6 +2,7 @@
 
 from wyrmctl.artifacts.codec import artifact_digest, read_artifact, write_artifact
 from wyrmctl.artifacts.execution import dns_plan_from_artifact, plan_from_artifact
+from wyrmctl.artifacts.live_state import scoped_live_state_fingerprint
 from wyrmctl.artifacts.models import ApplyReport, ArtifactSignature, LiveStateSnapshot, PlanArtifact
 from wyrmctl.artifacts.plan import build_plan_artifact, validate_plan_binding
 from wyrmctl.artifacts.redaction import redact_artifact
@@ -18,6 +19,7 @@ __all__ = [
     "plan_from_artifact",
     "read_artifact",
     "redact_artifact",
+    "scoped_live_state_fingerprint",
     "sign_plan",
     "validate_plan_binding",
     "verify_plan",

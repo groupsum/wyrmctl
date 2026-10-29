@@ -558,7 +558,7 @@ def _write_plan_artifact(
 ) -> None:
     from dataclasses import asdict
 
-    from wyrmctl.artifacts import build_plan_artifact, write_artifact
+    from wyrmctl.artifacts import build_plan_artifact, scoped_live_state_fingerprint, write_artifact
     from wyrmctl.contracts import semantic_digest
 
     if args.command != "plan" or args.prune_owned:
@@ -571,7 +571,7 @@ def _write_plan_artifact(
         environment=args.environment,
         commit=args.commit or "working-tree",
         desired_state_digest=semantic_digest(asdict(desired)),
-        live_state_fingerprint=semantic_digest([item.to_dict() for item in existing.resources()]),
+        live_state_fingerprint=scoped_live_state_fingerprint(plan, existing),
         dns_plan=dns_plan,
         dns_live_state_fingerprint=_dns_live_fingerprint(dns_plan, dns_providers),
         provider_capabilities={},
@@ -583,8 +583,13 @@ def _write_plan_artifact(
 
 def _apply_plan_artifact(args: argparse.Namespace, client: Any) -> int:
     from wyrmctl.apply import ApplyEngine
-    from wyrmctl.artifacts import dns_plan_from_artifact, plan_from_artifact, read_artifact, validate_plan_binding
-    from wyrmctl.contracts import semantic_digest
+    from wyrmctl.artifacts import (
+        dns_plan_from_artifact,
+        plan_from_artifact,
+        read_artifact,
+        scoped_live_state_fingerprint,
+        validate_plan_binding,
+    )
 
     document = read_artifact(args.artifact, strict=True)
     metadata = document["metadata"]
@@ -622,7 +627,7 @@ def _apply_plan_artifact(args: argparse.Namespace, client: Any) -> int:
         environment=args.environment,
         commit=args.commit or artifact.commit,
         desired_state_digest=artifact.desired_state_digest,
-        live_state_fingerprint=semantic_digest([item.to_dict() for item in existing.resources()]),
+        live_state_fingerprint=scoped_live_state_fingerprint(plan, existing),
         dns_live_state_fingerprint=_dns_live_fingerprint(dns_plan, dns_providers),
         provider_capabilities={},
         api_profiles={"npm": capabilities.api_profile},
