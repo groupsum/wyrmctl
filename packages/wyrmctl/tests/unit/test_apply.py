@@ -401,6 +401,24 @@ def test_apply_persists_identity_when_certificate_request_drops_metadata() -> No
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
 
 
+def test_apply_persists_identity_even_when_certificate_request_echoes_metadata() -> None:
+    client = RecordingClient()
+    guard = RecordingIssuanceGuard()
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.CREATE, ResourceKind.CERTIFICATE, desired=_cert()),),
+        conflicts=(),
+        existing_count=0,
+    )
+    capabilities = replace(Capabilities.full_for_tests(), certificate_request=True)
+
+    result = ApplyEngine(client=client, capabilities=capabilities, issuance_guard=guard).apply(plan)
+
+    assert [event[0] for event in client.events] == ["request", "update:put"]
+    assert client.events[1][2] == result.mutations[0]["id"]
+    assert client.events[1][3]["meta"] == _meta("cert.one")
+    assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
+
+
 def test_apply_fails_closed_when_issued_certificate_identity_cannot_be_persisted() -> None:
     class MetadataDroppingClient(RecordingClient):
         def request_certificate(self, payload: dict) -> ExistingResource:
@@ -422,7 +440,7 @@ def test_apply_fails_closed_when_issued_certificate_identity_cannot_be_persisted
         certificates=replace(Capabilities.full_for_tests().certificates, update=False, update_method=None),
     )
 
-    with pytest.raises(ValidationError, match="did not persist managed identity"):
+    with pytest.raises(ValidationError, match="certificate ownership cannot be verified"):
         ApplyEngine(client=client, capabilities=capabilities, issuance_guard=guard).apply(plan)
 
     assert [event[0] for event in client.events] == ["request"]
