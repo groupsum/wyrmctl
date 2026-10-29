@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: docker compose -f deploy/npm/compose.ci.yml logs --no-color > npm-e2e-container.log || true
     - if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: npm-e2e-artifacts
         path: |

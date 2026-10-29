@@ -8,7 +8,7 @@ jobs:
       group: wyrmctl-apply-production
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-uv-python
       - run: uv run wyrmctl plan infra/npm/desired-state --owner workload-a --output json > plan.json
       - run: uv run wyrmctl apply infra/npm/desired-state --owner workload-a
