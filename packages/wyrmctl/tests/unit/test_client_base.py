@@ -131,6 +131,29 @@ def test_request_certificate_uses_provider_acme_endpoint() -> None:
     assert session.calls[0]["json"] == payload
 
 
+def test_renew_certificate_forces_material_refresh_and_get_resource_rereads() -> None:
+    payload = {
+        "id": 2,
+        "nice_name": "demo.example.com",
+        "domain_names": ["demo.example.com", "www.demo.example.com"],
+        "provider": "letsencrypt",
+        "meta": {"owner": "demo", "resource_id": "cert.demo"},
+    }
+    client, session = _client([FakeResponse(200, payload), FakeResponse(200, payload)])
+    client._token = "token-value"
+    client._expires = int(time.time()) + 3600
+
+    renewed = client.renew_certificate(2, force=True)
+    reread = client.get_resource(ResourceKind.CERTIFICATE, 2)
+
+    assert renewed.domain_names == ("demo.example.com", "www.demo.example.com")
+    assert reread.domain_names == renewed.domain_names
+    assert session.calls[0]["method"] == "POST"
+    assert session.calls[0]["url"].endswith("/nginx/certificates/2/renew?force=true")
+    assert session.calls[1]["method"] == "GET"
+    assert session.calls[1]["url"].endswith("/nginx/certificates/2")
+
+
 def test_refresh_uses_existing_token_without_recursive_refresh(monkeypatch) -> None:
     monkeypatch.setattr("wyrmctl.client.base.time.time", lambda: 1000)
     client, session = _client(

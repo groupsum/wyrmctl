@@ -10,6 +10,7 @@ FULL_OPENAPI = {
         "/nginx/proxy-hosts/{id}": {"get": {}, "put": {}, "delete": {}},
         "/nginx/certificates": {"get": {}, "post": {}},
         "/nginx/certificates/request": {"post": {}},
+        "/nginx/certificates/{certificate_id}/renew": {"post": {}},
         "/nginx/certificates/{id}": {"get": {}, "put": {}, "delete": {}},
         "/nginx/access-lists": {"get": {}, "post": {}},
         "/nginx/access-lists/{id}": {"get": {}, "put": {}, "delete": {}},
@@ -24,6 +25,7 @@ def test_capabilities_detect_full_crud() -> None:
     assert caps.proxy_hosts.delete
     assert caps.certificates.update
     assert caps.certificate_request
+    assert caps.certificate_renew
     assert caps.access_lists.delete
 
 
@@ -34,3 +36,4 @@ def test_capabilities_fail_closed_when_item_paths_absent() -> None:
     assert not caps.proxy_hosts.update
     assert not caps.proxy_hosts.delete
     assert not caps.certificate_request
+    assert not caps.certificate_renew

@@ -87,6 +87,13 @@ class NpmClient:
             return tuple(ExistingResource.from_generic(kind, item) for item in data)
         raise CapabilityError(f"unsupported resource kind: {kind}")
 
+    def get_resource(self, kind: ResourceKind, resource_id: ResourceId) -> ExistingResource:
+        """Read one resource through its canonical item endpoint."""
+
+        contract = CONTRACTS[kind]
+        data = self._request("get", contract.item_path(resource_id), authenticated=True)
+        return _parse_created(kind, data)
+
     def existing_state(self, *, include_certificates: bool = True, include_access_lists: bool = True) -> ExistingState:
         caps = self.capabilities()
         proxy_hosts = self.list_resource(ResourceKind.PROXY_HOST)
@@ -133,6 +140,22 @@ class NpmClient:
             "/nginx/certificates/request",
             authenticated=True,
             json=dict(payload),
+        )
+        return _parse_created(ResourceKind.CERTIFICATE, data)
+
+    def renew_certificate(
+        self,
+        resource_id: ResourceId,
+        *,
+        force: bool = False,
+    ) -> ExistingResource:
+        """Renew one provider-managed certificate and return the provider response."""
+
+        force_value = "true" if force else "false"
+        data = self._request(
+            "post",
+            f"/nginx/certificates/{resource_id}/renew?force={force_value}",
+            authenticated=True,
         )
         return _parse_created(ResourceKind.CERTIFICATE, data)
 
@@ -297,6 +320,8 @@ def _with_npm_2104_compatibility(caps: Capabilities) -> Capabilities:
         users=caps.users,
         settings=caps.settings,
         audit_log=caps.audit_log,
+        certificate_request=caps.certificate_request,
+        certificate_renew=caps.certificate_renew,
         schema_version=caps.schema_version,
     )
 

@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 
 from wyrmctl.apply import ApplyEngine
-from wyrmctl.errors import ApiError, CertificateApiError, ConflictError, ValidationError
+from wyrmctl.errors import ApiError, CapabilityError, CertificateApiError, ConflictError, ValidationError
 from wyrmctl.issuance import CertificateIssuanceGuard
 from wyrmctl.models import (
     DesiredAccessList,
@@ -112,6 +112,29 @@ class RecordingClient:
     ) -> ExistingResource:
         self.events.append((f"update:{method}", kind, resource_id, payload))
         raw = dict(payload) | {"id": resource_id}
+        if kind == ResourceKind.CERTIFICATE:
+            return ExistingResource.from_certificate(raw)
+        if kind == ResourceKind.ACCESS_LIST:
+            return ExistingResource.from_access_list(raw)
+        return ExistingResource.from_proxy_host(raw)
+
+    def renew_certificate(self, resource_id: int, *, force: bool = False) -> ExistingResource:
+        self.events.append((f"renew:{str(force).lower()}", ResourceKind.CERTIFICATE, resource_id, None))
+        updated = next(
+            event[3]
+            for event in reversed(self.events)
+            if event[0].startswith("update:") and event[1] == ResourceKind.CERTIFICATE and event[2] == resource_id
+        )
+        return ExistingResource.from_certificate(dict(updated or {}) | {"id": resource_id})
+
+    def get_resource(self, kind: ResourceKind, resource_id: int) -> ExistingResource:
+        self.events.append(("get", kind, resource_id, None))
+        updated = next(
+            event[3]
+            for event in reversed(self.events)
+            if event[0].startswith("update:") and event[1] == kind and event[2] == resource_id
+        )
+        raw = dict(updated or {}) | {"id": resource_id}
         if kind == ResourceKind.CERTIFICATE:
             return ExistingResource.from_certificate(raw)
         if kind == ResourceKind.ACCESS_LIST:
@@ -467,6 +490,169 @@ def test_apply_certificate_update_uses_issuance_guard_on_success() -> None:
     ApplyEngine(client=client, capabilities=Capabilities.full_for_tests(), issuance_guard=guard).apply(plan)
 
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
+
+
+def test_apply_renews_letsencrypt_material_only_when_domain_set_changes() -> None:
+    client = RecordingClient()
+    guard = RecordingIssuanceGuard()
+    desired = DesiredCertificate.from_mapping(
+        {
+            "name": "cert-one",
+            "domain_names": ["app.example.com", "www.app.example.com"],
+            "certificate_type": "letsencrypt",
+            "meta": _meta("cert.one"),
+        },
+        path="cert",
+    )
+    existing = _existing(
+        ResourceKind.CERTIFICATE,
+        "cert.one",
+        12,
+        provider="letsencrypt",
+    )
+    plan = Plan(
+        operations=(
+            PlanOperation(
+                PlanAction.UPDATE,
+                ResourceKind.CERTIFICATE,
+                desired=desired,
+                existing=existing,
+            ),
+        ),
+        conflicts=(),
+        existing_count=1,
+    )
+
+    result = ApplyEngine(
+        client=client,
+        capabilities=Capabilities.full_for_tests(),
+        issuance_guard=guard,
+    ).apply(plan)
+
+    assert [event[0] for event in client.events] == ["update:put", "renew:true", "get"]
+    assert result.mutations == [
+        {
+            "action": "update",
+            "kind": "certificate",
+            "resource_id": "cert.one",
+            "id": 12,
+            "renewed": True,
+        }
+    ]
+    assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
+
+
+def test_apply_noop_letsencrypt_certificate_does_not_renew() -> None:
+    client = RecordingClient()
+    desired = DesiredCertificate.from_mapping(
+        {
+            "name": "cert-one",
+            "domain_names": ["app.example.com"],
+            "certificate_type": "letsencrypt",
+            "meta": _meta("cert.one"),
+        },
+        path="cert",
+    )
+    existing = _existing(
+        ResourceKind.CERTIFICATE,
+        "cert.one",
+        12,
+        provider="letsencrypt",
+    )
+    plan = Plan(
+        operations=(
+            PlanOperation(
+                PlanAction.NOOP,
+                ResourceKind.CERTIFICATE,
+                desired=desired,
+                existing=existing,
+            ),
+        ),
+        conflicts=(),
+        existing_count=1,
+    )
+
+    result = _engine(client).apply(plan)
+
+    assert result.mutations == []
+    assert client.events == []
+
+
+@pytest.mark.parametrize(
+    ("existing_overrides", "desired_overrides"),
+    [
+        ({"provider": "letsencrypt"}, {"name": "renamed-cert"}),
+        ({"provider": "other"}, {"domain_names": ["new.example.com"]}),
+    ],
+)
+def test_apply_certificate_update_does_not_renew_for_metadata_or_custom_certificates(
+    existing_overrides: dict,
+    desired_overrides: dict,
+) -> None:
+    client = RecordingClient()
+    raw = {
+        "name": "cert-one",
+        "domain_names": ["app.example.com"],
+        "certificate_type": "letsencrypt",
+        "meta": _meta("cert.one"),
+    }
+    raw.update(desired_overrides)
+    desired = DesiredCertificate.from_mapping(raw, path="cert")
+    existing = _existing(ResourceKind.CERTIFICATE, "cert.one", 12, **existing_overrides)
+    plan = Plan(
+        operations=(
+            PlanOperation(
+                PlanAction.UPDATE,
+                ResourceKind.CERTIFICATE,
+                desired=desired,
+                existing=existing,
+            ),
+        ),
+        conflicts=(),
+        existing_count=1,
+    )
+
+    result = _engine(client).apply(plan)
+
+    assert [event[0] for event in client.events] == ["update:put"]
+    assert result.mutations[0]["renewed"] is False
+
+
+def test_apply_fails_before_update_when_domain_change_cannot_renew() -> None:
+    client = RecordingClient()
+    desired = DesiredCertificate.from_mapping(
+        {
+            "name": "cert-one",
+            "domain_names": ["app.example.com", "www.app.example.com"],
+            "certificate_type": "letsencrypt",
+            "meta": _meta("cert.one"),
+        },
+        path="cert",
+    )
+    existing = _existing(
+        ResourceKind.CERTIFICATE,
+        "cert.one",
+        12,
+        provider="letsencrypt",
+    )
+    capabilities = replace(Capabilities.full_for_tests(), certificate_renew=False)
+    plan = Plan(
+        operations=(
+            PlanOperation(
+                PlanAction.UPDATE,
+                ResourceKind.CERTIFICATE,
+                desired=desired,
+                existing=existing,
+            ),
+        ),
+        conflicts=(),
+        existing_count=1,
+    )
+
+    with pytest.raises(CapabilityError, match="forced certificate renewal and readback"):
+        ApplyEngine(client=client, capabilities=capabilities).apply(plan)
+
+    assert client.events == []
 
 
 def test_apply_certificate_mutations_record_guard_failure_on_certificate_api_error() -> None:
