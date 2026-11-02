@@ -17,3 +17,12 @@ Issuance safety is local and fail-closed:
 - Certbot lock contention is classified as retryable, while stale `No order for ID ...` failures are surfaced as cleanup-required certificate errors
 - after native certificate issuance, Wyrmctl verifies that managed identity was returned and immediately persists it on that newly created certificate when the request endpoint omits it
 - if the provider cannot persist that identity, apply fails instead of reporting an unmanaged certificate as a successful create
+
+Certificate updates also converge the certificate material, not just the
+database row. When an owner-scoped existing Let's Encrypt certificate changes
+its normalized `domain_names`, Wyrmctl updates the certificate metadata and
+domain set, calls the Portwyrm renewal endpoint with `force=true`, and then
+re-reads the certificate before reporting success. The apply fails before the
+first mutation unless provider capabilities advertise both forced renewal and
+certificate readback. Metadata-only updates, no-op plans, and custom
+certificates never trigger renewal.

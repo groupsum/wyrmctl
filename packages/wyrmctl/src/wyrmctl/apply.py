@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from wyrmctl.client import NpmClient
-from wyrmctl.errors import ApiError, CertificateApiError, ConflictError, ValidationError
+from wyrmctl.errors import ApiError, CapabilityError, CertificateApiError, ConflictError, ValidationError
 from wyrmctl.issuance import CertificateIssuanceGuard
 from wyrmctl.metadata import merge_managed_meta
 from wyrmctl.models import (
@@ -139,11 +139,20 @@ class ApplyEngine:
         existing = _require_existing(operation)
         payload = self._merge_existing_with_desired(existing, desired)
         cap = self.capabilities.for_kind(desired.kind)
+        renew_certificate = _requires_certificate_material_renewal(existing, desired)
+        if renew_certificate and (not self.capabilities.certificate_renew or not self.capabilities.certificates.get):
+            raise CapabilityError(
+                "provider does not expose forced certificate renewal and readback required "
+                "to apply a Let's Encrypt domain-set change"
+            )
         issuance_key: str | None = None
         try:
             if isinstance(desired, DesiredCertificate):
                 issuance_key = self.issuance_guard.begin(desired)
             updated = self.client.update_resource(desired.kind, existing.id, payload, method=cap.update_method or "put")
+            if renew_certificate:
+                self.client.renew_certificate(existing.id, force=True)
+                updated = self.client.get_resource(ResourceKind.CERTIFICATE, existing.id)
         except CertificateApiError:
             if issuance_key is not None:
                 self.issuance_guard.fail(issuance_key, error_code="certificate_api_error")
@@ -154,12 +163,16 @@ class ApplyEngine:
             raise
         if issuance_key is not None:
             self.issuance_guard.succeed(issuance_key)
-        return {
+        self.created_by_resource_id[desired.identity.resource_id] = updated
+        mutation = {
             "action": "update",
             "kind": desired.kind.value,
             "resource_id": desired.identity.resource_id,
             "id": updated.id,
         }
+        if isinstance(desired, DesiredCertificate):
+            mutation["renewed"] = renew_certificate
+        return mutation
 
     def _adopt(self, operation: PlanOperation) -> dict[str, Any]:
         desired = _require_desired(operation)
@@ -332,3 +345,13 @@ def _updateable_existing_payload(existing: ExistingResource) -> dict[str, Any]:
             if payload.get(field) is None:
                 payload[field] = default
     return payload
+
+
+def _requires_certificate_material_renewal(
+    existing: ExistingResource,
+    desired: DesiredProxyHost | DesiredCertificate | DesiredAccessList | DesiredGenericResource,
+) -> bool:
+    if not isinstance(desired, DesiredCertificate):
+        return False
+    provider = str(existing.raw.get("provider") or "").strip().casefold()
+    return provider == "letsencrypt" and existing.domain_names != desired.domain_names

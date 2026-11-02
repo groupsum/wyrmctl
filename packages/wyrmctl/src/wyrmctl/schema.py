@@ -52,6 +52,7 @@ class Capabilities:
     settings: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     audit_log: ResourceCapabilities = field(default_factory=ResourceCapabilities)
     certificate_request: bool = False
+    certificate_renew: bool = False
     schema_version: str | None = None
 
     @classmethod
@@ -69,6 +70,7 @@ class Capabilities:
             settings=empty,
             audit_log=empty,
             certificate_request=False,
+            certificate_renew=False,
         )
 
     @classmethod
@@ -87,6 +89,7 @@ class Capabilities:
             settings=cap,
             audit_log=read_only,
             certificate_request=False,
+            certificate_renew=True,
             schema_version="test",
         )
 
@@ -114,6 +117,12 @@ class Capabilities:
             settings=_detect(paths, "/settings"),
             audit_log=_detect(paths, "/audit-log"),
             certificate_request="post" in _methods(paths.get("/nginx/certificates/request", {})),
+            certificate_renew=_has_member_action(
+                paths,
+                "/nginx/certificates",
+                "renew",
+                "post",
+            ),
             schema_version=version,
         )
 
@@ -157,6 +166,7 @@ class Capabilities:
             "settings": self.settings.to_dict(),
             "audit_log": self.audit_log.to_dict(),
             "certificate_request": self.certificate_request,
+            "certificate_renew": self.certificate_renew,
         }
 
     @property
@@ -188,6 +198,25 @@ def _methods(path_item: Any) -> set[str]:
     if not isinstance(path_item, dict):
         return set()
     return {method.lower() for method in path_item if method.lower() in {"get", "post", "put", "patch", "delete"}}
+
+
+def _has_member_action(
+    paths: dict[str, Any],
+    collection: str,
+    action: str,
+    method: str,
+) -> bool:
+    suffix = f"/{action}"
+    for path, value in paths.items():
+        if (
+            path.startswith(f"{collection}/")
+            and path.endswith(suffix)
+            and "{" in path
+            and "}" in path
+            and method in _methods(value)
+        ):
+            return True
+    return False
 
 
 def load_openapi_schema(path: str | Path) -> dict[str, Any]:

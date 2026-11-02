@@ -1,6 +1,6 @@
 # Features
 
-Generated entries: 215
+Generated entries: 216
 
 | id | title | implementation_status | horizon | target_tier | claims | tests |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -17,6 +17,7 @@ Generated entries: 215
 | feat:auth-token | Authenticate to NPM API | implemented | current | T2 | clm:create-only-integrity | tst:e2e-real-npm, tst:integration-fake-npm, tst:unit-client-cli |
 | feat:canonical-document-digests | Canonical document digests | absent | backlog |  | clm:versioning-migration-contracts | tst:canonical-digest-stability |
 | feat:certificate-crud | Owner-scoped SSL certificate CRUD | implemented | current | T2 | clm:owner-scoped-integrity | tst:e2e-real-npm, tst:integration-fake-npm, tst:unit-planner |
+| feat:certificate-domain-material-convergence | Certificate domain material convergence | implemented | explicit | T3 | clm:repair-safe-certificate-policy | tst:repair-safe-certificate-policy, tst:certificate-domain-material-convergence |
 | feat:certificate-domain-set-reuse-detection | Certificate domain-set reuse detection | implemented | explicit | T3 | clm:expanded-feature-scope-planning, clm:repair-safe-certificate-policy | tst:expanded-feature-scope-planning, tst:repair-safe-certificate-policy |
 | feat:certificate-failure-classification | Structured certificate failure classification | implemented | explicit | T3 | clm:expanded-feature-scope-planning, clm:repair-safe-certificate-issuance-safety | tst:expanded-feature-scope-planning, tst:repair-safe-certificate-issuance-safety |
 | feat:certificate-issuance-cooldown | Certificate issuance cooldown | implemented | explicit | T3 | clm:expanded-feature-scope-planning, clm:repair-safe-certificate-issuance-safety | tst:expanded-feature-scope-planning, tst:repair-safe-certificate-issuance-safety |

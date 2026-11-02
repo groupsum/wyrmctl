@@ -72,6 +72,7 @@ FULL_OPENAPI = {
         "/nginx/proxy-hosts": {"get": {}, "post": {}},
         "/nginx/proxy-hosts/{id}": {"get": {}, "put": {}, "delete": {}},
         "/nginx/certificates": {"get": {}, "post": {}},
+        "/nginx/certificates/{id}/renew": {"post": {}},
         "/nginx/certificates/{id}": {"get": {}, "put": {}, "delete": {}},
         "/nginx/access-lists": {"get": {}, "post": {}},
         "/nginx/access-lists/{id}": {"get": {}, "put": {}, "delete": {}},
@@ -165,6 +166,13 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self.state.proxy_hosts)
         elif path == "/nginx/certificates":
             self._json(200, self.state.certificates)
+        elif path.startswith("/nginx/certificates/"):
+            collection, resource_id = _collection_and_id(path)
+            item = next(
+                (item for item in getattr(self.state, collection or "certificates") if item["id"] == resource_id),
+                None,
+            )
+            self._json(200 if item else 404, item or {"error": "not found"})
         elif path == "/nginx/access-lists":
             self._json(200, self.state.access_lists)
         elif path == "/nginx/redirection-hosts":
@@ -190,6 +198,10 @@ class Handler(BaseHTTPRequestHandler):
             self._json(201, self.state.create("proxy_hosts", self._read()))
         elif path == "/nginx/certificates":
             self._json(201, self.state.create("certificates", self._read()))
+        elif path.startswith("/nginx/certificates/") and path.endswith("/renew?force=true"):
+            resource_id = int(path.removeprefix("/nginx/certificates/").split("/", maxsplit=1)[0])
+            item = next((item for item in self.state.certificates if item["id"] == resource_id), None)
+            self._json(200 if item else 404, item or {"error": "not found"})
         elif path == "/nginx/access-lists":
             self._json(201, self.state.create("access_lists", self._read()))
         elif path == "/nginx/redirection-hosts":
@@ -227,6 +239,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def _collection_and_id(path: str) -> tuple[str | None, int]:
+    path = path.split("?", maxsplit=1)[0]
     mapping = {
         "/nginx/proxy-hosts/": "proxy_hosts",
         "/nginx/certificates/": "certificates",
