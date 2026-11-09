@@ -290,3 +290,17 @@ def test_api_errors_redact_configured_secrets_and_sensitive_markers() -> None:
     assert "supersecret" not in message
     assert "password" not in message
     assert "secret" not in message
+
+
+def test_certificate_error_redacts_dns_credentials_echoed_by_the_server() -> None:
+    client, _ = _client([FakeResponse(422, text="rejected example-user and example-key")])
+    client._token = "token-value"
+    client._expires = int(time.time()) + 3600
+
+    with pytest.raises(ApiError) as exc_info:
+        client.request_certificate(
+            {"dns_credentials": {"username": "example-user", "api_key": "example-key", "invalid": 1}}
+        )
+
+    assert "example-user" not in str(exc_info.value)
+    assert "example-key" not in str(exc_info.value)

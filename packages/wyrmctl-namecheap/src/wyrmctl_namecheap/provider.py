@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from wyrmctl.contracts import semantic_digest
 from wyrmctl.providers import DnsMutationContext, ProviderCapabilities, ProviderMutationResult, dns_records_digest
 
 from wyrmctl_namecheap.capabilities import CAPABILITIES
 from wyrmctl_namecheap.client import NamecheapClient
 from wyrmctl_namecheap.config import NamecheapConfig
+from wyrmctl_namecheap.errors import NamecheapError
 
 
 class NamecheapDnsProvider:
@@ -38,6 +40,8 @@ class NamecheapDnsProvider:
         records: tuple[dict[str, object], ...],
         context: DnsMutationContext | None = None,
     ) -> ProviderMutationResult:
+        if context is not None and semantic_digest(self.records(zone)) != context.expected_before_digest:
+            raise NamecheapError("Namecheap zone changed before apply. Generate a new DNS plan.")
         self.client.set_hosts(zone, records)
         observed = self.records(zone)
         return ProviderMutationResult(

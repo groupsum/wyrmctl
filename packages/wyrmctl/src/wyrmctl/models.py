@@ -73,7 +73,7 @@ class PlanAction(StrEnum):
     CONFLICT = "conflict"
 
 
-def canonicalize_domain(value: Any, *, path: str) -> str:
+def canonicalize_domain(value: Any, *, path: str, wildcard_min_labels: int = 3) -> str:
     """Normalize and validate DNS names accepted by NPM."""
 
     if not isinstance(value, str):
@@ -88,7 +88,7 @@ def canonicalize_domain(value: Any, *, path: str) -> str:
         raise ValidationError(f"{path} contains an empty DNS label")
     for index, label in enumerate(labels):
         if label == "*":
-            if index != 0 or len(labels) < 3:
+            if index != 0 or len(labels) < wildcard_min_labels:
                 raise ValidationError(f"{path} wildcard is only allowed as the left-most label")
             continue
         if not _DOMAIN_LABEL_PATTERN.fullmatch(label):
@@ -357,12 +357,15 @@ class DesiredCertificate:
         certificate_type = raw.get("certificate_type", "letsencrypt")
         if not isinstance(certificate_type, str) or not certificate_type.strip():
             raise ValidationError(f"{path}.certificate_type must be a non-empty string")
+        api_payload = mapping_or_empty(raw.get("api_payload"), path=f"{path}.api_payload")
+        if not isinstance(api_payload.get("namecheap_credentials_from_env", False), bool):
+            raise ValidationError(f"{path}.api_payload.namecheap_credentials_from_env must be a boolean")
         return cls(
             name=validate_name(raw["name"], path=f"{path}.name"),
             domain_names=canonical_domain_set(raw["domain_names"], path=f"{path}.domain_names"),
             meta=validate_metadata(raw["meta"], path=path),
             certificate_type=certificate_type.strip(),
-            api_payload=mapping_or_empty(raw.get("api_payload"), path=f"{path}.api_payload"),
+            api_payload=api_payload,
         )
 
     @property
@@ -375,6 +378,7 @@ class DesiredCertificate:
 
     def to_payload(self) -> dict[str, Any]:
         payload = dict(self.api_payload)
+        payload.pop("namecheap_credentials_from_env", None)
         payload.setdefault("nice_name", self.name)
         payload.setdefault("provider", self.certificate_type)
         payload["domain_names"] = list(self.domain_names)
@@ -657,7 +661,7 @@ def _canonicalize_dns_record_name(value: str) -> str:
     name = value.strip().lower().rstrip(".")
     if name == "@":
         return name
-    return canonicalize_domain(name, path="dns_record.name")
+    return canonicalize_domain(name, path="dns_record.name", wildcard_min_labels=1)
 
 
 @dataclass(frozen=True, slots=True)

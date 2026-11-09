@@ -166,7 +166,9 @@ def compute_dns_plan(
             continue
         existing = tuple(_normalized_record(provider_name, zone, record) for record in provider.records(zone))
         existing_count += len(existing)
-        existing_by_key = {_record_key(record): record for record in existing}
+        existing_by_key: dict[tuple[str, str, str, str], list[dict[str, Any]]] = {}
+        for current in existing:
+            existing_by_key.setdefault(_record_key(current), []).append(current)
         desired_keys: set[tuple[str, str, str, str]] = set()
         mutating = False
 
@@ -174,8 +176,20 @@ def compute_dns_plan(
             desired = record.to_payload()
             key = _record_key(desired)
             desired_keys.add(key)
-            current = existing_by_key.get(key)
-            if current is None:
+            matches = existing_by_key.get(key, [])
+            if len(matches) > 1:
+                conflicts.append(
+                    DnsPlanConflict(
+                        code="ambiguous_dns_record",
+                        message=f"multiple existing {record.type.value} records for {record.name!r}",
+                        provider=provider_name,
+                        zone=zone,
+                        owner=record.identity.owner,
+                        resource_id=record.identity.resource_id,
+                    )
+                )
+                continue
+            if not matches:
                 mutating = True
                 operations.append(
                     DnsPlanOperation(
@@ -189,6 +203,7 @@ def compute_dns_plan(
                     )
                 )
                 continue
+            current = matches[0]
             diff = diff_dns_record(desired, current)
             if diff:
                 mutating = True
@@ -272,21 +287,27 @@ def apply_dns_plan(plan: DnsPlan, providers: Mapping[str, DnsProvider]) -> DnsAp
         provider = providers[provider_name]
         if not hasattr(provider, "apply_records"):
             raise ValueError(f"DNS provider {provider_name!r} does not support apply_records")
-        next_records = {
-            _record_key(record): _normalized_record(provider_name, zone, record) for record in provider.records(zone)
-        }
+        current_records = provider.records(zone)
+        next_records = [_normalized_record(provider_name, zone, record) for record in current_records]
         for operation in operations:
-            if operation.action == PlanAction.DELETE and operation.existing is not None:
-                next_records.pop(_record_key(operation.existing), None)
-            elif operation.desired is not None:
-                next_records[_record_key(operation.desired)] = dict(operation.desired)
+            if operation.existing is not None:
+                previous = _normalized_record(provider_name, zone, operation.existing)
+                if previous not in next_records:
+                    raise ValueError(f"DNS record changed since planning: {operation.name}")
+                next_records.remove(previous)
+            if operation.desired is not None:
+                if operation.existing is None and any(
+                    _record_key(record) == _record_key(operation.desired) for record in next_records
+                ):
+                    raise ValueError(f"DNS record appeared since planning: {operation.name}")
+                next_records.append(dict(operation.desired))
             mutations.append(operation.to_dict())
-        target = tuple(next_records[key] for key in sorted(next_records))
+        target = tuple(sorted(next_records, key=_record_key))
         operation_id = semantic_digest([operation.to_dict() for operation in operations])
         context = DnsMutationContext(
             operation_id=operation_id,
             idempotency_key=semantic_digest({"provider": provider_name, "zone": zone, "target": target}),
-            expected_before_digest=semantic_digest(provider.records(zone)),
+            expected_before_digest=semantic_digest(current_records),
         )
         if hasattr(provider, "capabilities"):
             capabilities = dns_capabilities(provider)

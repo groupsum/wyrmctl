@@ -73,5 +73,11 @@ def dns_records_digest(records: tuple[dict[str, object], ...]) -> str:
     normalized = [
         {key: record[key] for key in fields if key in record and record[key] is not None} for record in records
     ]
-    normalized.sort(key=lambda item: (str(item.get("name", "")).lower(), str(item.get("type", "")).upper()))
+    normalized.sort(
+        key=lambda item: (
+            str(item.get("name", "")).lower(),
+            str(item.get("type", "")).upper(),
+            semantic_digest(item),
+        )
+    )
     return semantic_digest(normalized)

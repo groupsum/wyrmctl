@@ -439,6 +439,9 @@ def _normalized_existing(existing: ExistingResource, desired_payload: dict[str, 
     raw = dict(existing.raw)
     if existing.kind == ResourceKind.CERTIFICATE and "name" not in raw and existing.name is not None:
         raw["name"] = existing.name
+    if existing.kind == ResourceKind.CERTIFICATE and isinstance(raw.get("meta"), dict):
+        for field in ("email", "dns_provider", "challenge_type"):
+            raw[field] = raw.get(field) or raw["meta"].get(field)
     if existing.kind == ResourceKind.ACCESS_LIST and "name" not in raw and existing.name is not None:
         raw["name"] = existing.name
     if existing.kind == ResourceKind.PROXY_HOST:

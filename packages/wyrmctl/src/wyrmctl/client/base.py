@@ -200,6 +200,12 @@ class NpmClient:
         if authenticated and self._token:
             headers["Authorization"] = f"Bearer {self._token}"
         url = f"{self.base_url}{path}"
+        credentials = json.get("dns_credentials") if json else None
+        credential_values = (
+            tuple(value for value in credentials.values() if isinstance(value, str))
+            if isinstance(credentials, Mapping)
+            else ()
+        )
         attempts = 3 if method.lower() == "get" else 1
         last_error: ApiError | None = None
         for attempt in range(attempts):
@@ -212,7 +218,9 @@ class NpmClient:
                     timeout=self.timeout_s,
                 )
             except requests.RequestException as exc:
-                last_error = ApiError(f"{method.upper()} {path} transport error: {exc}")
+                last_error = ApiError(
+                    f"{method.upper()} {path} transport error: {_redact(str(exc), *credential_values)}"
+                )
                 if attempt + 1 < attempts:
                     time.sleep(0.5 * (attempt + 1))
                     continue
@@ -233,7 +241,7 @@ class NpmClient:
                 method.upper(),
                 path,
                 response.status_code,
-                self._redact(response.text),
+                _redact(self._redact(response.text), *credential_values),
             )
         if allow_empty and not response.content:
             return None

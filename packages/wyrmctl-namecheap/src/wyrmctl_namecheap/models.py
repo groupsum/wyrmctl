@@ -20,11 +20,12 @@ class NamecheapRecord:
     @classmethod
     def from_attrs(cls, attrs: Mapping[str, Any]) -> NamecheapRecord:
         ttl = _optional_int(attrs.get("TTL"))
-        mx_pref = _optional_int(attrs.get("MXPref"))
+        record_type = str(attrs.get("Type", "")).upper()
+        mx_pref = _optional_int(attrs.get("MXPref")) if record_type == "MX" else None
         return cls(
             host_id=_optional_str(attrs.get("HostId")),
             name=str(attrs.get("Name", "")).lower(),
-            type=str(attrs.get("Type", "")).upper(),
+            type=record_type,
             address=str(attrs.get("Address", "")),
             ttl=ttl,
             mx_pref=mx_pref,

@@ -11,7 +11,11 @@ tags: []
 summary: "Spec: npmctl shall deduplicate repeated issuance attempts for the same normalized certificate scope, apply cooldown behavior after failed issuance, and emit structured certificate failure classes suitable for operator workflows and automation."
 supersedes: []
 superseded_by: []
-status_notes: []
+status_notes:
+  -
+    status: "draft"
+    note: "The native Namecheap DNS-01 apply handoff resolves credentials at request time. Plans carry only an opt-in flag, and Namecheap domain-set changes require a new certificate."
+    at: "2026-11-09T10:17:29Z"
 references: []
 body: |-
   Spec: npmctl shall deduplicate repeated issuance attempts for the same normalized certificate scope, apply cooldown behavior after failed issuance, and emit structured certificate failure classes suitable for operator workflows and automation.

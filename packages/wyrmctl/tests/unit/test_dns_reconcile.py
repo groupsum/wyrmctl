@@ -181,6 +181,42 @@ def test_dns_apply_preserves_unmanaged_records_and_applies_once_per_zone() -> No
     assert "old" not in applied
 
 
+def test_wildcard_create_preserves_multiple_existing_records_in_each_record_set() -> None:
+    existing = (
+        {"name": "@", "type": "TXT", "value": "verification", "ttl": 300},
+        {"name": "@", "type": "TXT", "value": "spf", "ttl": 300},
+    )
+    provider = WritableProvider(existing)
+    wildcard = _record("dns.wildcard", name="*.login")
+    plan = compute_dns_plan((wildcard,), {"namecheap": provider})
+    apply_dns_plan(plan, {"namecheap": provider})
+    written = provider.applied[0][1]
+    assert [row["value"] for row in written if row["type"] == "TXT"] == ["verification", "spf"]
+    assert [row["name"] for row in written if row["type"] == "A"] == ["*.login"]
+
+
+def test_dns_plan_rejects_ambiguous_target_and_apply_rejects_stale_target() -> None:
+    wildcard = _record("dns.wildcard", name="*.login")
+    original = wildcard.to_payload()
+    duplicate = {**original, "value": "192.0.2.11"}
+    provider = WritableProvider((original, duplicate))
+    plan = compute_dns_plan((wildcard,), {"namecheap": provider})
+    assert plan.conflicts[0].code == "ambiguous_dns_record"
+
+    provider = WritableProvider()
+    plan = compute_dns_plan((wildcard,), {"namecheap": provider})
+    provider._records = (duplicate,)
+    with pytest.raises(ValueError, match="appeared since planning"):
+        apply_dns_plan(plan, {"namecheap": provider})
+    assert not provider.applied
+
+    plan = compute_dns_plan((wildcard,), {"namecheap": provider})
+    provider._records = (original,)
+    with pytest.raises(ValueError, match="changed since planning"):
+        apply_dns_plan(plan, {"namecheap": provider})
+    assert not provider.applied
+
+
 def test_dns_apply_rejects_conflicts_and_readonly_provider() -> None:
     with pytest.raises(ValueError, match="refusing to apply DNS plan"):
         apply_dns_plan(DnsPlan(conflicts=(DnsPlanConflict("blocked", "blocked"),)), {})

@@ -395,6 +395,88 @@ def test_apply_uses_provider_acme_request_endpoint_when_advertised() -> None:
     assert guard.events == [("begin", "cert.one"), ("succeed", "cert.one")]
 
 
+@pytest.mark.parametrize(
+    ("native", "certificate_type", "provider", "challenge", "credentials", "error"),
+    [
+        (True, "letsencrypt", "namecheap", "dns-01", True, None),
+        (False, "letsencrypt", "namecheap", "dns-01", True, "native DNS-01"),
+        (True, "other", "namecheap", "dns-01", True, "native DNS-01"),
+        (True, "letsencrypt", "cloudflare", "dns-01", True, "native DNS-01"),
+        (True, "letsencrypt", "namecheap", "http-01", True, "native DNS-01"),
+        (True, "letsencrypt", "namecheap", "dns-01", False, "NAMECHEAP_API_USER"),
+    ],
+)
+def test_apply_loads_namecheap_credentials_only_when_requesting_certificate(
+    monkeypatch, native, certificate_type, provider, challenge, credentials, error
+) -> None:
+    monkeypatch.setenv("NAMECHEAP_API_USER", "example-user")
+    monkeypatch.setenv("NAMECHEAP_API_KEY", "example-key")
+    if not credentials:
+        monkeypatch.delenv("NAMECHEAP_API_KEY")
+    desired = replace(
+        _cert(),
+        certificate_type=certificate_type,
+        api_payload={
+            "dns_provider": provider,
+            "challenge_type": challenge,
+            "namecheap_credentials_from_env": True,
+        },
+    )
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.CREATE, ResourceKind.CERTIFICATE, desired=desired),),
+        conflicts=(),
+        existing_count=0,
+    )
+    assert "example-key" not in str(plan.to_dict())
+    client = RecordingClient()
+    engine = ApplyEngine(client=client, capabilities=replace(Capabilities.full_for_tests(), certificate_request=native))
+    if error:
+        with pytest.raises(ValidationError, match=error):
+            engine.apply(plan)
+        assert client.events == []
+        return
+    result = engine.apply(plan)
+    assert client.events[0][0] == "request"
+    assert client.events[0][3]["dns_credentials"] == {
+        "dns_namecheap_username": "example-user",
+        "dns_namecheap_api_key": "example-key",
+    }
+    assert "namecheap_credentials_from_env" not in client.events[0][3]
+    assert "example-key" not in str(client.events[1:])
+    assert "example-key" not in str(result.to_dict())
+
+
+@pytest.mark.parametrize(
+    ("desired_provider", "existing_provider", "existing_meta"),
+    [
+        ("namecheap", None, {}),
+        (None, "namecheap", {}),
+        (None, None, {"dns_provider": "namecheap"}),
+    ],
+)
+def test_namecheap_certificate_domain_change_fails_before_mutation(
+    desired_provider, existing_provider, existing_meta
+) -> None:
+    desired = replace(_cert(), domain_names=("new.example.com",), api_payload={"dns_provider": desired_provider})
+    existing = _existing(
+        ResourceKind.CERTIFICATE,
+        "cert.one",
+        1,
+        provider="letsencrypt",
+        dns_provider=existing_provider,
+        meta={**_meta("cert.one"), **existing_meta},
+    )
+    plan = Plan(
+        operations=(PlanOperation(PlanAction.UPDATE, ResourceKind.CERTIFICATE, desired=desired, existing=existing),),
+        conflicts=(),
+        existing_count=1,
+    )
+    client = RecordingClient()
+    with pytest.raises(CapabilityError, match="requires a new certificate"):
+        _engine(client).apply(plan)
+    assert client.events == []
+
+
 def test_apply_persists_identity_when_certificate_request_drops_metadata() -> None:
     class MetadataDroppingClient(RecordingClient):
         def request_certificate(self, payload: dict) -> ExistingResource:
