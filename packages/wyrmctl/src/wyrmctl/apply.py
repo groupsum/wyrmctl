@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -84,6 +85,24 @@ class ApplyEngine:
     def _create(self, operation: PlanOperation) -> dict[str, Any]:
         desired = _require_desired(operation)
         payload = self._payload_for(desired)
+        if (
+            isinstance(desired, DesiredCertificate)
+            and desired.api_payload.get("namecheap_credentials_from_env") is True
+        ):
+            if (
+                desired.certificate_type != "letsencrypt"
+                or payload.get("dns_provider") != "namecheap"
+                or payload.get("challenge_type") != "dns-01"
+                or not self.capabilities.certificate_request
+            ):
+                raise ValidationError("Namecheap environment credentials require a native DNS-01 certificate request")
+            username = os.getenv("NAMECHEAP_API_USER")
+            api_key = os.getenv("NAMECHEAP_API_KEY")
+            if not username or not api_key:
+                raise ValidationError(
+                    "Namecheap certificate issuance requires NAMECHEAP_API_USER and NAMECHEAP_API_KEY"
+                )
+            payload["dns_credentials"] = {"dns_namecheap_username": username, "dns_namecheap_api_key": api_key}
         issuance_key: str | None = None
         try:
             if isinstance(desired, DesiredCertificate):
@@ -140,6 +159,13 @@ class ApplyEngine:
         payload = self._merge_existing_with_desired(existing, desired)
         cap = self.capabilities.for_kind(desired.kind)
         renew_certificate = _requires_certificate_material_renewal(existing, desired)
+        existing_meta = existing.raw.get("meta") or {}
+        if renew_certificate and (
+            payload.get("dns_provider") == "namecheap"
+            or existing.raw.get("dns_provider") == "namecheap"
+            or (isinstance(existing_meta, dict) and existing_meta.get("dns_provider") == "namecheap")
+        ):
+            raise CapabilityError("a Namecheap certificate domain-set change requires a new certificate")
         if renew_certificate and (not self.capabilities.certificate_renew or not self.capabilities.certificates.get):
             raise CapabilityError(
                 "provider does not expose forced certificate renewal and readback required "

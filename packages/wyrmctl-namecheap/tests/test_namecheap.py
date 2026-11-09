@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+import requests
+
+from wyrmctl.providers import DnsMutationContext
 
 from wyrmctl_namecheap.client import NamecheapClient
 from wyrmctl_namecheap.config import NamecheapConfig
@@ -23,6 +26,9 @@ class FakeSession:
     def get(self, url: str, **kwargs) -> FakeResponse:
         self.calls.append({"url": url, **kwargs})
         return self.responses.pop(0)
+
+    def post(self, url: str, **kwargs) -> FakeResponse:
+        return self.get(url, **kwargs)
 
 
 def _config() -> NamecheapConfig:
@@ -94,7 +100,8 @@ def test_client_lists_zones_and_records() -> None:
                 <ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response">
                   <CommandResponse>
                     <DomainDNSGetHostsResult>
-                      <host HostId="1" Name="@" Type="A" Address="192.0.2.10" TTL="300" />
+                      <Host HostId="1" Name="@" Type="A" Address="192.0.2.10" TTL="300" MXPref="10" />
+                      <host HostId="2" Name="@" Type="MX" Address="mail.example.com" TTL="300" MXPref="5" />
                     </DomainDNSGetHostsResult>
                   </CommandResponse>
                 </ApiResponse>""",
@@ -104,7 +111,9 @@ def test_client_lists_zones_and_records() -> None:
     client.session = session  # type: ignore[assignment]
 
     assert client.zones() == ("example.com",)
-    assert client.records("example.com")[0].address == "192.0.2.10"
+    address, mail = client.records("example.com")
+    assert (address.address, address.mx_pref) == ("192.0.2.10", None)
+    assert (mail.address, mail.mx_pref) == ("mail.example.com", 5)
     assert session.calls[0]["params"]["Command"] == "namecheap.domains.getList"  # type: ignore[index]
     assert session.calls[1]["params"]["SLD"] == "example"  # type: ignore[index]
 
@@ -174,6 +183,16 @@ def test_client_set_hosts_rejects_unsupported_records_missing_mx_priority_and_mi
         NamecheapClient(missing_ip).set_hosts("example.com", ())
 
 
+def test_client_posts_complete_zones_with_more_than_ten_hosts() -> None:
+    client = NamecheapClient(_config())
+    session = FakeSession([FakeResponse(200, '<ApiResponse Status="OK"/>')])
+    client.session = session  # type: ignore[assignment]
+    records = tuple({"name": f"host-{index}", "type": "A", "value": "192.0.2.10"} for index in range(11))
+    client.set_hosts("example.com", records)
+    assert session.calls[0]["params"]["Command"] == "namecheap.domains.dns.setHosts"
+    assert session.calls[0]["data"]["HostName11"] == "host-10"
+
+
 def test_client_reports_http_api_and_xml_errors() -> None:
     client = NamecheapClient(_config())
     client.session = FakeSession([FakeResponse(500, "broken")])  # type: ignore[assignment]
@@ -235,3 +254,38 @@ def test_provider_applies_record_dicts() -> None:
     provider.apply_records("example.com", ({"name": "@", "type": "A", "value": "192.0.2.10"},))
 
     assert client.calls == [("example.com", ({"name": "@", "type": "A", "value": "192.0.2.10"},))]
+
+    with pytest.raises(NamecheapError, match="zone changed before apply"):
+        provider.apply_records(
+            "example.com",
+            ({"name": "*.login", "type": "A", "value": "192.0.2.10"},),
+            DnsMutationContext("operation", "idempotency", "previous-state"),
+        )
+    assert len(client.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "",
+        '<DomainDNSGetHostsResult IsUsingOurDNS="false"/>',
+        "<DomainDNSGetHostsResult><Host/></DomainDNSGetHostsResult>",
+    ],
+)
+def test_client_rejects_an_unusable_zone_read(body) -> None:
+    client = NamecheapClient(_config())
+    response = f'<ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response">{body}</ApiResponse>'
+    client.session = FakeSession([FakeResponse(200, response)])  # type: ignore[assignment]
+    with pytest.raises(NamecheapError, match="authoritative host record list|unexpected host record"):
+        client.records("example.com")
+
+
+def test_client_does_not_surface_credentials_in_transport_errors(monkeypatch) -> None:
+    client = NamecheapClient(_config())
+
+    def fail(*_args, **_kwargs):
+        raise requests.ConnectionError("failed request included api-key")
+
+    monkeypatch.setattr(client.session, "get", fail)
+    with pytest.raises(NamecheapError, match="^Namecheap API transport failed$"):
+        client.records("example.com")

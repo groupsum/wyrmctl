@@ -4,7 +4,20 @@ from __future__ import annotations
 
 from typing import Any
 
-DEFAULT_SECRET_FIELDS = frozenset({"secret", "password", "token", "api_key", "apikey", "authorization", "private_key"})
+DEFAULT_SECRET_FIELDS = frozenset(
+    {
+        "secret",
+        "password",
+        "token",
+        "api_key",
+        "apikey",
+        "authorization",
+        "private_key",
+        "dns_credentials",
+        "dns_provider_credentials",
+        "dns_namecheap_api_key",
+    }
+)
 
 
 def redact_artifact(value: Any, *, secret_fields: frozenset[str] = DEFAULT_SECRET_FIELDS) -> Any:

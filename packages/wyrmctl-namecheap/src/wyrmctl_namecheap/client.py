@@ -31,8 +31,15 @@ class NamecheapClient:
     def records(self, zone: str) -> tuple[NamecheapRecord, ...]:
         sld, tld = split_zone(zone)
         data = self._request("namecheap.domains.dns.getHosts", SLD=sld, TLD=tld)
-        hosts = data.findall(".//nc:host", _NAMESPACE)
-        return tuple(NamecheapRecord.from_attrs(host.attrib) for host in hosts)
+        result = data.find(".//nc:DomainDNSGetHostsResult", _NAMESPACE)
+        if result is None or result.attrib.get("IsUsingOurDNS", "true").casefold() != "true":
+            raise NamecheapError("Namecheap did not return an authoritative host record list")
+        if any(
+            host.tag.rsplit("}", 1)[-1].casefold() != "host" or not {"Name", "Type", "Address"} <= host.attrib.keys()
+            for host in result
+        ):
+            raise NamecheapError("Namecheap returned an unexpected host record element")
+        return tuple(NamecheapRecord.from_attrs(host.attrib) for host in result)
 
     def set_hosts(self, zone: str, records: tuple[dict[str, Any], ...]) -> None:
         sld, tld = split_zone(zone)
@@ -46,27 +53,36 @@ class NamecheapClient:
             params[f"Address{index}"] = host["Address"]
             params[f"TTL{index}"] = host["TTL"]
             params[f"MXPref{index}"] = host["MXPref"]
-        self._request("namecheap.domains.dns.setHosts", **params)
+        self._request("namecheap.domains.dns.setHosts", post=len(records) > 10, **params)
 
-    def _request(self, command: str, **params: str) -> ElementTree.Element:
+    def _request(self, command: str, *, post: bool = False, **params: str) -> ElementTree.Element:
         query: dict[str, Any] = {
             "ApiUser": self.config.api_user,
             "ApiKey": self.config.api_key,
             "UserName": self.config.username,
             "ClientIp": self.config.client_ip,
             "Command": command,
-            **params,
         }
-        response = self.session.get(self.config.api_base_url, params=query, timeout=self.timeout_s)
+        try:
+            if post:
+                response = self.session.post(
+                    self.config.api_base_url, params=query, data=params, timeout=self.timeout_s
+                )
+            else:
+                response = self.session.get(
+                    self.config.api_base_url, params={**query, **params}, timeout=self.timeout_s
+                )
+        except requests.RequestException:
+            raise NamecheapError("Namecheap API transport failed") from None
         if response.status_code < 200 or response.status_code >= 300:
             raise NamecheapError(f"Namecheap API failed: HTTP {response.status_code}")
         try:
             parsed = ElementTree.fromstring(response.text)
         except ElementTree.ParseError as exc:
             raise NamecheapError("Namecheap API returned invalid XML") from exc
-        if parsed.attrib.get("Status") == "ERROR":
+        if parsed.attrib.get("Status", "").casefold() != "ok":
             errors = [item.text or "unknown error" for item in parsed.findall(".//nc:Error", _NAMESPACE)]
-            raise NamecheapError(self._redact("; ".join(errors)))
+            raise NamecheapError(self._redact("; ".join(errors)) or "Namecheap API did not report success")
         return parsed
 
     def _redact(self, message: str) -> str:

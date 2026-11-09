@@ -204,11 +204,36 @@ def test_proxy_host_rejects_invalid_advanced_config_shape() -> None:
             },
         ),
         (DesiredAccessList, {"name": "admins", "meta": META, "api_payload": "bad"}),
+        (
+            DesiredCertificate,
+            {
+                "name": "wildcard",
+                "domain_names": ["example.com"],
+                "meta": META,
+                "api_payload": {"namecheap_credentials_from_env": "true"},
+            },
+        ),
     ],
 )
 def test_certificate_and_access_list_reject_invalid_api_payload(model, raw) -> None:
     with pytest.raises(ValidationError, match="api_payload"):
         model.from_mapping(raw, path="resource")
+
+
+@pytest.mark.parametrize("name", ["*.login", "*"])
+def test_dns_record_accepts_relative_wildcard_names(name) -> None:
+    record = DesiredDnsRecord.from_mapping(
+        {
+            "provider": "namecheap",
+            "zone": "priv.pw",
+            "type": "A",
+            "name": name,
+            "value": "192.0.2.10",
+            "meta": META,
+        },
+        path="dns",
+    )
+    assert record.name == name
 
 
 def test_dns_record_happy_path_normalizes_provider_zone_and_name() -> None:

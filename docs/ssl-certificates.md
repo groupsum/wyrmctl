@@ -26,3 +26,17 @@ re-reads the certificate before reporting success. The apply fails before the
 first mutation unless provider capabilities advertise both forced renewal and
 certificate readback. Metadata-only updates, no-op plans, and custom
 certificates never trigger renewal.
+
+## Namecheap DNS-01 on Portwyrm
+
+For a Let's Encrypt certificate, set `challenge_type: dns-01`, `dns_provider: namecheap`,
+`email`, and `namecheap_credentials_from_env: true` under `api_payload`.
+Set `NAMECHEAP_API_USER` and `NAMECHEAP_API_KEY` only in the protected apply job. Wyrmctl
+reads them when it issues the certificate through Portwyrm's native request endpoint.
+The desired state and plan contain only the opt-in flag. Portwyrm holds the credentials
+for subsequent renewal. Issue a new certificate with a new resource ID to change the
+domain set, then update the route reference.
+
+Manage the wildcard A record in a separate DNS plan or in the provider console.
+Wyrmctl accepts a relative DNS record name such as `*.login` for the zone
+`priv.pw`. The proxy route and certificate use the full `*.login.priv.pw` name.
