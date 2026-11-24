@@ -1,11 +1,11 @@
 ---
 services:
   npm:
-    image: jc21/nginx-proxy-manager:2.10.4
+    image: jc21/nginx-proxy-manager:2.17.1@sha256:04a9d0835560b9719ab577275f84fe1f713298a1c1e2bdefa034b87f10e062e1
     ports:
-      - "8080:80"
-      - "8181:81"
-      - "8443:443"
+      - "127.0.0.1:8080:80"
+      - "127.0.0.1:8181:81"
+      - "127.0.0.1:8443:443"
     environment:
       INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-admin@example.com}
       INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-changeme}
